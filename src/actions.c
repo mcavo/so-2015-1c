@@ -40,7 +40,7 @@ static char* getMovieCode () {
                  break;
          }
     }
-    printf("\n\n");
+    printf("\n\n  Please, select your choice:\n");
     fclose(fd_movie);
     return NULL;
 }
