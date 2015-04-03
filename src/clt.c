@@ -1,9 +1,16 @@
 #include <stdio.h>
+#include <stdint.h>
+#include "../inc/actions.h"
 
-#define ACTION_BUY_TICKETS  1
-#define ACTION_SHOW_FIXTURE 2
+#define ACTION_SHOW_FIXTURE 1
+#define ACTION_BUY_TICKETS  2
 #define ACTION_EXIT         3
 #define ACTION_INVALID      4
+
+
+
+
+
 
 void showCinemaTitle () {
     printf(" *****    ***********      **********\n\
@@ -29,7 +36,6 @@ void showCinemaTitle () {
 
 }
 
-
 int showMenu(){
     int choice = -1;
         printf("\n  **********\n\
@@ -46,17 +52,30 @@ int showMenu(){
   return choice;
 }
 
-int main() {
-    showCinemaTitle();
-    int option = -1;
-    while (option!=ACTION_EXIT) {
-        option = showMenu();
-        switch(option) {
+
+int execRequest(/*ipc_t* ipc*/){
+    int choice=0;
+    while ((choice=showMenu())!=ACTION_EXIT) {
+        switch(choice) {
             case ACTION_BUY_TICKETS: break;
-            case ACTION_SHOW_FIXTURE: break;
+            case ACTION_SHOW_FIXTURE: action_show_movies() ; break;
             case ACTION_EXIT: printf(" Come back soon!\n"); break;
-            default: printf("Invalid argument:\n %d is not a valid option.\n\n",option); break;
+            default: printf("Invalid argument:\n %d is not a valid choice.\n\n",choice); break;
         }
     }
     return 0;
 }
+
+
+
+
+
+
+
+
+int main() {
+    showCinemaTitle();
+    execRequest();
+    return 0;
+}
+
