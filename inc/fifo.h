@@ -11,6 +11,6 @@ typedef struct {
 	char *fifopath;
 	char *lockpath;
 	int lock;
-} ipc_t;
+} ipc_type;
 
 #endif
