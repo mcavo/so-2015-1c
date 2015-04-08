@@ -1,7 +1,6 @@
 #define STATUS_NUM          0
 #define STATUS_TITLE        1
 
-#define MAX_MOVIE_LENGHT    50
 #define MAX_MOVIES          30
 
 #define BLOCK           5
@@ -42,7 +41,7 @@ static char* getMovieCode () {
     return NULL;
 }
 
-void action_show_movies() {
+void action_buy_tickets() {
     char* cod = getMovieCode();
 }
 
