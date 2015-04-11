@@ -33,8 +33,12 @@ int main() {
     getchar();
     printf("Trying to get lock...\n");
 	
+	/*
+	F_SETLK tira -1 cuando otro proceso esta bloqueando, lo usamos para avisar al usuario y llamar a
+	flock otra vez con el modo F_SETLKW que espera automaticamente a que el otro proceso desbloquee.
+	*/
     if(fcntl(fd, F_SETLK, &fl) == -1){
-	printf("Trying to connect to database...\n");
+	printf("Trying to connect to database. Please wait...\n");
 	if (fcntl(fd, F_SETLKW, &fl) == -1) {
         perror("fcntl");
         exit(1);
@@ -43,12 +47,11 @@ int main() {
 
      }
 
-
-    
     printf("got lock\n");
 
 //LEER ESE ASIENTO
 	
+	//Se posiciona con lseek tantos bytes desde el comienzo del archivo.
         lseek(fd, 9, SEEK_SET);	
 	read(fd,&c,1); 
 	//c = fgetc(fd);
