@@ -7,7 +7,7 @@
 
 #include <stdio.h>
 
-#include <db_connector.h>
+#include "db_connector.h"
 
 //Va a ser por nombre de pelicula que coincide con el nombre del archivo.
 static char* getMovieCode () {
@@ -34,7 +34,7 @@ static char* getMovieCode () {
                     printf("\n  %d. ",n);
                     n++;
                     state=STATUS_TITLE;
-                } 
+                }
                 printf("%c", c);
                 break;
         }
@@ -83,7 +83,7 @@ void action_show_movies() {
                     printf("\n  %d. ",n);
                     n++;
                     state=STATUS_TITLE;
-                } 
+                }
                 printf("%c", c);
                 break;
         }
