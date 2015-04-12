@@ -1,98 +1,185 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <string.h>
+#import "../inc/db_connector.h"
 
-#define CLEAN_BUFF	while ( getchar() != '\n' );
+/***** private *****/
+void flock_creat(int start, int end, int fd, int type) {
+    struct flock fl;
 
-
-int main() {
-	struct flock fl = {F_WRLCK, SEEK_SET, 0, 0, 0 };
-    int fd;
-	int i=0;
-	char c;
-
+    fl.l_type = type;
+    fl.l_whence = SEEK_SET;
+    fl.l_start = start;
+    fl.l_len = end;
     fl.l_pid = getpid();
 
-//LEVANTO ARCHIVO
-
-    if ((fd = open("../database/malefica.txt", O_RDWR)) == -1) {
-        perror("open");
-        exit(1);
+    if(fcntl(fd, F_SETLK, &fl) == -1) { //pensar bien los casos
+        printf("Trying to connect to database. Wait please...\n");
+        if (fcntl(fd, F_SETLKW, &fl) == -1) {
+          perror("fcntl");
+          exit(1);
+        }
     }
 
-//SETEO DONDE BLOQUEAR
+    printf("got lock\n"); //DEBUG
+}
 
-    fl.l_start  = 0;        /* 0 = Offset from l_whence         */
-	fl.l_len    = 0;        /* length, 0 = to EOF           */
+void flock_read(int start, int end, int fd) {
+    flock_creat(start, end, fd, F_RDLCK);
+}
 
-//INTENTO BLOQUEAR
-    printf("Press <RETURN> to try to get lock: \n");
-    getchar();
-    printf("Trying to get lock...\n");
+void flock_write(int start, int end, int fd) {
+    flock_creat(start, end, fd, F_WRLCK);
+}
 
-	/*
-	F_SETLK tira -1 cuando otro proceso esta bloqueando, lo usamos para avisar al usuario y llamar a
-	flock otra vez con el modo F_SETLKW que espera automaticamente a que el otro proceso desbloquee.
-	*/
-    if(fcntl(fd, F_SETLK, &fl) == -1){
-	printf("Trying to connect to database. Please wait...\n");
-	if (fcntl(fd, F_SETLKW, &fl) == -1) {
-        perror("fcntl");
-        exit(1);
+void flock_unlock(int start, int end, int fd) {
+    flock_creat(start, end, fd, F_UNLCK);
+}
 
-    	}
+void write_booking(booking_t booking, int fd) {
+    char* data;
+    int count = booking.end - booking.start;
+    int i;
+    for(i = 0; i < count; i++){
+        data[i] = '1';
+    }
+    /* queda ver como se escribe en el archivo */
+    //fwrite(fd, count, );
+}
 
-     }
+/* charge titles into an array of strings */
+void charge_titles(fixture_t fixture, int fd){
+    char c;
 
-    printf("got lock\n");
+    while(read(fd,&c,1) != 0)
+    {
+        switch(c) {
+            case '\n':
+                *(*fixture.titles)++ = '\0';
+                (fixture.titles)++; //cambio de string
+                fixture.count = fixture.count++;
+                break;
+            default:
+                *(*fixture.titles)++ = c;           
+                break;
+        }
+    }
+}
 
-//LEER ESE ASIENTO
+void charge_sala(sala_t sala, int fd) {
+    int index = 0;
+    int status = ROW_STATUS;
+    char c;
 
-	//Se posiciona con lseek tantos bytes desde el comienzo del archivo.
-        lseek(fd, 9, SEEK_SET);
-	read(fd,&c,1);
-	//c = fgetc(fd);
-	if(c=='1'){
-		printf("Los asientos estan ocupados. Intente nuevamente. \n");
+    while(read(fd,&c,1) != 0 && (status == END_STATUS)){ /* tendría que ser un get_int */
+        switch(status) {
+            case ROW_STATUS:
+                sala.rows = sala.rows*10 + c - '0';
+                if (c == ' ') 
+                    status = COL_STATUS;
+                break;
+            case COL_STATUS:
+                sala.cols = sala.cols*10 + c - '0';
+                if (c == ' ') 
+                    status = SITS_STATUS;
+                break;
+            case SITS_STATUS:
+                if(index >= sala.rows * sala.cols) {
+                    status = END_STATUS;
+                    for( ; index < MAX_PLACES ; index ++){ 
+                        sala.places[index] = -1;
+                    }
+                } else {
+                    sala.places[index ++] = c;
+                }
+                break;
+        }
+    }
+}
 
-		fl.l_type = F_UNLCK;  /* set to unlock same region */
+BOOL validRange( int* start, int* end, sala_t sala ) {
+    int start_p = get_position(start[0], start[1]);
+    int end_p = get_position(end[0], end[1]);
+    int i;
+    if(end_p >= start_p && end_p < MAX_PLACES) {
+        for(i=0; i < (end_p - start_p); i++) {
+            if (sala.places[start_p + i] == 1)
+                return FALSE;
+        }
+        return TRUE;
+    }
+    return FALSE;
+}
 
+BOOL checkValidRange(booking_t booking, int fd) {
+    sala_t sala;
+    charge_sala(sala, fd);
+    return validRange(booking.start, booking.end, sala);
+}
 
-	    if (fcntl(fd, F_SETLK, &fl) == -1) {
-		perror("fcntl");
-		exit(1);
-	    }
+/********** public methos ***********/
+/* Esto por el momento no hace nada y no retorna */
+int buy_tickets(booking_t booking){
+    int start = get_position(booking.start[0], booking.start[1]);//fila y columna paso
+    int end = get_position(booking.end[0], booking.end[1]);
 
-	    printf("Unlocked.\n");
- 		exit(1);
+    return 1; //solo para sacar el warning
+}
 
-	}
-
-
-//OCUPAR ASIENTO
-    lseek(fd, 9, SEEK_SET);
-    write(fd,"2",1);
-
-
-
-    printf("Press <RETURN> to release lock: \n");
-    CLEAN_BUFF
-    getchar();
-
-    fl.l_type = F_UNLCK;  /* set to unlock same region */
-
-    if (fcntl(fd, F_SETLK, &fl) == -1) {
-        perror("fcntl");
+sala_t get_sala(char* pelicula) {
+    sala_t sala;
+    int fd = open(pelicula, O_RDWR);
+    
+    if (fd==-1) {
+        perror("open fixture");
         exit(1);
     }
+        
+/* bloquear el archivo para la película dada */
+    flock_read(0, 0, fd); /* length 0, until EOF */
 
-    printf("Unlocked.\n");
+/* cargar las ubicaciones disponibles para devolvérselas al cliente */
+    charge_sala(sala, fd);
 
+/* desbloquear la base */
+    flock_unlock(0, 0, fd);
+    close(fd);
+/* retornar la sala */
+    return sala;
+}
+
+fixture_t get_movies() {
+    int fd;
+    //fixture_t ans = malloc(sizeof(fixture_t));
+    fixture_t ans;
+    /* Abrir el archivo para lectura */
+    if ((fd = open("../database/fixture.txt", O_RDWR)) == -1) {
+        perror("open fixture");
+        exit(1);
+    }
+    /* Bloquear la base para lectura */
+    flock_read(0, 0, fd);
+    /* Charge movies */
+    charge_titles(ans, fd);
+
+    flock_unlock(0, 0, fd);
     close(fd);
 
-    return 0;
-
+    return ans;
 }
+
+void confirmarReserva(booking_t booking) {
+    int fd;
+    fd = open(booking.movie_name, O_RDWR);
+
+/* Bloquear la base para que no puedan leer ni escribir y abrir la conexión */
+    flock_write(0, 0, fd);
+
+/* Checkear que los asientos estén disponibles */
+    if(checkValidRange(booking, fd)){
+    
+    /* Modificar los asientosa ocupados */
+        write_booking(booking, fd);
+    }
+/* Liberar la base */
+    flock_unlock(0, 0, fd);
+    close(fd);
+}
+
