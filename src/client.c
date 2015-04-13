@@ -8,16 +8,16 @@ void printSala (sala_t sala) {
     char color;
     for(i=0;i<sala.rows*sala.cols;i++) {
         if(sala.places[i]==1)
-            color=TAKEN;
+            color=ANSI_COLOR_BOUGHT;
         else {
             if(sala.places[i]==2)
-                color=SELECTED;
+                color=ANSI_COLOR_SELECTED;
             else
-                color=FREE;
+                color=ANSI_COLOR_AVAILABLE;
         }
         if (i%sala.cols == 0)
             printf("\n");
-        printf("%cO",color);
+        printf("%sO%s",color,ANSI_COLOR_RESET);
     }
 }
 
@@ -44,6 +44,7 @@ int* getPosition(char * msg) {
     printf("%s\n", msg);
     scanf("%c%d",&cfil,&col);	
     int* rta;
+    rta = malloc(2 * sizeof(int));
     rta[0]=((int) (cfil-'a')) - 1;
     rta[1]=col - 1;
 
@@ -65,9 +66,11 @@ BOOL askConfirmation(sala_t sala, booking_t b) {
 
     printSala(sala); //este print no debería estar acá.
     // PREGUNTAR SI CONFIRMA
-    printf("%s\n", "Ingrese una s si desea confirmar la selección o una n si desea modificarla");
+    //SPANGLISH ALERT! 
+    do {
+    printf("%s\n", "Desea confirmar su reserva? (S/N)");
     scanf("%c", &c);
-
+    } while(tolower(c)!='n'&&tolower(c)!='s'&&printf("\nPor favor ingrese una S o una N.")) 
     switch(c){
     	case 's':
     	case 'S':
