@@ -66,13 +66,6 @@ int execRequest(/*ipc_t* ipc*/){
     return 0;
 }
 
-
-
-
-
-
-
-
 int main() {
     showCinemaTitle();
     execRequest();

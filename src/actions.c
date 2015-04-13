@@ -1,81 +1,47 @@
-#define STATUS_NUM          0
-#define STATUS_TITLE        1
-
-#define MAX_MOVIE_LENGHT    50
-#define MAX_MOVIES          30
-
-#define BLOCK           5
-
 #include <stdio.h>
+#include <string.h>
+#include "../inc/actions.h"
 
-static char* getMovieCode () {
-    FILE* fd_movie;
-    char c;
-    int state = STATUS_NUM;
-    int n = 1;
-    // BLOQUEAR ESCRITURA
-    fd_movie = fopen("fixture.txt","r");
-    if(fd_movie==NULL) {
-        printf("fallo fixture\n");
-    return;
-    }
-    printf("\n  MOVIES LIST \n\
-  -----------\n");
-    while((c = fgetc(fd_movie))!=EOF)
-    {
-        switch(c) {
-            case '\n':
-                state=STATUS_NUM;
-                break;
-             default:
-                if (state==STATUS_NUM) {
-                    printf("\n  %d. ",n);
-                    n++;
-                    state=STATUS_TITLE;
-                } 
-                printf("%c", c);
-                break;
+/* conectar la base del cliente Luego va a ir del lado de los workes */
+char * get_fname (char * movie_name) {
+    int len = strlen(movie_name); //len: cant de letras del string sin incluir el '\0'
+    char * fname;
+    if ((fname = malloc (len+5))!=NULL) { // 5: '.''t''x''t''\0'
+        int i;
+        for(i=0;i<len;i++){
+            if(*(movie_name+i)==' ')
+                *(fname+i)='_';
+            else
+                *(fname+i)=*(movie_name+i);
         }
+        *(fname+(len++))='.';
+        *(fname+(len++))='t';
+        *(fname+(len++))='x';
+        *(fname+(len++))='t';
+        *(fname+(len))=0;
     }
-    printf("\n\n  Please, select your choice:\n");
-    fclose(fd_movie);
-    return NULL;
+    return fname;
 }
 
-void action_show_movies() {
-    char* cod = getMovieCode();
+/* función repetida.. no se donde ponerla */
+BOOL validRange( int* start, int* end, sala_t sala ) {
+    int start_p = get_position(start[0], start[1]);
+    int end_p = get_position(end[0], end[1]);
+    int i;
+    if(end_p >= start_p && end_p < MAX_PLACES) {
+        for(i=0; i < (end_p - start_p); i++) {
+            if (sala.places[start_p + i] == 1)
+                return FALSE;
+        }
+        return TRUE;
+    }
+    return FALSE;
 }
 
-void action_show_movies() {
-    FILE* fd_movie;
-    char c;
-    int state = STATUS_NUM;
-    int n = 1;
-    // BLOQUEAR ESCRITURA
-    fd_movie = fopen("fixture.txt","r");
-    if(fd_movie==NULL) {
-        printf("fallo fixture\n");
-        return;
-    }
-    printf("\n  MOVIES LIST \n\
-  -----------\n");
-    while((c = fgetc(fd_movie))!=EOF)
-    {
-        switch(c) {
-            case '\n':
-                state=STATUS_NUM;
-                break;
-            default:
-                if (state==STATUS_NUM) {
-                    printf("\n  %d. ",n);
-                    n++;
-                    state=STATUS_TITLE;
-                } 
-                printf("%c", c);
-                break;
+void markAsSelected(sala_t sala, int start, int end) {
+    for(i=0; (i <= end_p ; i++) {
+        if(i >= start_p && i <= end_p) {
+            sala.places[i]=2;
         }
     }
-    printf("\n\n  Please, select your choice:\n");
-    fclose(fd_movie);
-    return;
 }
