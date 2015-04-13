@@ -5,5 +5,5 @@
 #define MAX_MOVIE_LENGHT    50
 
 void markAsSelected(sala_t sala, int start, int end);
-char * get_fname (char * movie_name);
+
 BOOL validRange( int* start, int* end, sala_t sala );

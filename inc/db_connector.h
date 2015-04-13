@@ -10,12 +10,17 @@
 #define MAX_ROW 7
 #define MAX_PLACES MAX_COL*MAX_ROW
 #define get_position(row, col)  ((row*MAX_COL)+col+1)
+#define invalid_ticket_interval(start, end) (end>start)? 1:0
 
 /* state machine for readind film text */
 #define ROW_STATUS 0
 #define COL_STATUS 1
 #define SITS_STATUS 2
 #define END_STATUS 3
+
+#define INVALID_INTERVAL -2
+#define OCCUPIED_SEATS -1
+#define SUCCESFUL_OPERATION 0
 
 #define BOOL int
 #define TRUE 1

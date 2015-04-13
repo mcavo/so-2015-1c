@@ -123,7 +123,7 @@ fixture_t actionShowMovies() {
 }
 
 //Retorna 0 si la operacion fue exitosa y -1 sino. En el front se trata la accion a seguir.
-int action_buy_tickets() {
+int actionBuyTickets() {
 	char* cod = getMovieCode();
 	booking_t booking = getBooking(cod);
 	return buy_tickets(booking);

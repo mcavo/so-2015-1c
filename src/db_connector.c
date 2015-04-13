@@ -1,6 +1,26 @@
-#import "../inc/db_connector.h"
+#include "../inc/db_connector.h"
 
 /***** private *****/
+char * get_fname (char * movie_name) {
+    int len = strlen(movie_name); //len: cant de letras del string sin incluir el '\0'
+    char * fname;
+    if ((fname = malloc (len+5))!=NULL) { // 5: '.''t''x''t''\0'
+        int i;
+        for(i=0;i<len;i++){
+            if(*(movie_name+i)==' ')
+                *(fname+i)='_';
+            else
+                *(fname+i)=*(movie_name+i);
+        }
+        *(fname+(len++))='.';
+        *(fname+(len++))='t';
+        *(fname+(len++))='x';
+        *(fname+(len++))='t';
+        *(fname+(len))=0;
+    }
+    return fname;
+}
+
 void flock_creat(int start, int end, int fd, int type) {
     struct flock fl;
 
@@ -45,22 +65,23 @@ void write_booking(booking_t booking, int fd) {
 }
 
 /* charge titles into an array of strings */
-void charge_titles(fixture_t fixture, int fd){
+void charge_titles(fixture_t * fixture, int fd){
     char c;
-
+    int si=0, ci=0;
     while(read(fd,&c,1) != 0)
     {
         switch(c) {
             case '\n':
-                *(*fixture.titles)++ = '\0';
-                (fixture.titles)++; //cambio de string
-                fixture.count = fixture.count++;
+                (fixture->titles)[si][ci] = '\0';
+                si++;
+                ci=0; //cambio de string
                 break;
             default:
-                *(*fixture.titles)++ = c;           
+                (fixture->titles)[si][ci++] = c;           
                 break;
         }
     }
+    (fixture->count)=si;
 }
 
 void charge_sala(sala_t sala, int fd) {

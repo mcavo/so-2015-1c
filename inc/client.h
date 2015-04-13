@@ -8,4 +8,4 @@
 #include "actions.h"
 
 fixture_t actionShowMovies();
-int action_buy_tickets();
+int actionBuyTickets();
