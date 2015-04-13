@@ -49,7 +49,7 @@ static char* getMovieCode () {
     return NULL;
 }
 
-//Retorna 0 si la operacion fue exitosa y -1 sino. En el front se trata la accion a seguir.
+//Retorna 0 si la operacion fue exitosa y -1 sino y -2 si el intervalo era invalido (ver si lo hacemos por errno). En el front se trata la accion a seguir.
 int action_buy_tickets() {
 	char* cod = getMovieCode();
 	booking_t booking = getBooking(cod);

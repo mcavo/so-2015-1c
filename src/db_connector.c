@@ -1,98 +1,128 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <string.h>
-
-#define CLEAN_BUFF	while ( getchar() != '\n' );
+#import "../inc/db_connector.h"
 
 
-int main() {
-	struct flock fl = {F_WRLCK, SEEK_SET, 0, 0, 0 };
-    int fd;
-	int i=0;
-	char c;
+//Retorna 0 si la operacion fue exitosa y -1 sino y -2 si el intervalo era invalido (ver si lo hacemos por errno). En el front se trata la accion a seguir.
+int buy_tickets(booking_t booking){
+	
+    int start, end, fd;
+    struct flock fl;
 
-    fl.l_pid = getpid();
+    start = get_position(booking.start[0],booking.start[1]);//fila y columna paso
+	end = get_position(booking.end[0],booking.end[1]);
+    
+    if(invalid_ticket_interval(start, end))
+        return INVALID_INTERVAL;
 
-//LEVANTO ARCHIVO
+    fd = open_file(booking.movie_name);
+    fl = flock_write(start, end, fd);
 
-    if ((fd = open("../database/malefica.txt", O_RDWR)) == -1) {
-        perror("open");
-        exit(1);
+    if(seats_occupied(fd)){
+        
+        close_operation(fl, fd);
+        return OCCUPIED_SEATS;
     }
-
-//SETEO DONDE BLOQUEAR
-
-    fl.l_start  = 0;        /* 0 = Offset from l_whence         */
-	fl.l_len    = 0;        /* length, 0 = to EOF           */
-
-//INTENTO BLOQUEAR
-    printf("Press <RETURN> to try to get lock: \n");
-    getchar();
-    printf("Trying to get lock...\n");
-
-	/*
-	F_SETLK tira -1 cuando otro proceso esta bloqueando, lo usamos para avisar al usuario y llamar a
-	flock otra vez con el modo F_SETLKW que espera automaticamente a que el otro proceso desbloquee.
-	*/
-    if(fcntl(fd, F_SETLK, &fl) == -1){
-	printf("Trying to connect to database. Please wait...\n");
-	if (fcntl(fd, F_SETLKW, &fl) == -1) {
-        perror("fcntl");
-        exit(1);
-
-    	}
-
-     }
-
-    printf("got lock\n");
-
-//LEER ESE ASIENTO
-
-	//Se posiciona con lseek tantos bytes desde el comienzo del archivo.
-        lseek(fd, 9, SEEK_SET);
-	read(fd,&c,1);
-	//c = fgetc(fd);
-	if(c=='1'){
-		printf("Los asientos estan ocupados. Intente nuevamente. \n");
-
-		fl.l_type = F_UNLCK;  /* set to unlock same region */
+    
+    get_seats(start, end, fd);
+    close_operation(fl, fd);
 
 
-	    if (fcntl(fd, F_SETLK, &fl) == -1) {
-		perror("fcntl");
-		exit(1);
-	    }
-
-	    printf("Unlocked.\n");
- 		exit(1);
-
-	}
+    return SUCCESFUL_OPERATION;
 
 
-//OCUPAR ASIENTO
-    lseek(fd, 9, SEEK_SET);
-    write(fd,"2",1);
+}
 
+void close_operation(struct flock fl, int fd){
+        flock_unlock(fl, fd);
+        close(fd);
+}
 
+int seats_occupied(int start, int end, int fd){
 
-    printf("Press <RETURN> to release lock: \n");
-    CLEAN_BUFF
-    getchar();
+    int i=start;
+    char seat;
 
-    fl.l_type = F_UNLCK;  /* set to unlock same region */
+    for(i=start;i<=end;i++){
 
-    if (fcntl(fd, F_SETLK, &fl) == -1) {
-        perror("fcntl");
-        exit(1);
+        lseek(fd, i, SEEK_SET);
+        read(fd,&seat,1);
+        
+        if(seat==OCCUPIED)
+            return 1;
     }
-
-    printf("Unlocked.\n");
-
-    close(fd);
 
     return 0;
+}
 
+void get_seats(int start, int end, int fd){
+
+    int i=start;
+    
+    for(i=start;i<=end;i++){
+
+        lseek(fd, i, SEEK_SET);
+        write(fd,"1",1);
+
+    }
+
+}
+
+//Lo abrimos siempre en modo O_RDWR para que sea compatible con cualquier type de fcntl
+int open_file(char* movie_name){
+
+    int fd;
+    char* root = get_file_root(movie_name);
+    
+    if ((fd = open(root , O_RDWR)) == -1) {
+        perror("Error opening %s file",movie_name);
+        return -1;
+    }
+
+    return fd;
+} 
+
+char* get_file_root(char* movie_name){
+    char root [80]= "../database/"+ movie_name +".txt";
+    strcpy(str, "../database/");
+    strcat(str, movie_name);
+    strcat(str, ".txt");
+    
+    return root;    
+}
+
+struct flock flock_read(int start, int end, int fd) {
+	return flock_creat(start, end, fd, F_RDLCK);
+}
+
+struct flock flock_write(int start, int end, int fd) {
+	return flock_creat(start, end, fd, F_WRLCK);
+}
+
+struct flock flock_creat(int start, int end, int fd, int type) {
+	struct flock fl;
+
+	fl.l_type = type;
+	fl.l_whence = SEEK_SET;
+    fl.l_start = start;
+    fl.l_len = end;
+    fl.l_pid = getpid();
+
+    if(fcntl(fd, F_SETLK, &fl) == -1) { //pensar bien los casos
+    	printf("Trying to connect to database. Wait please...\n");
+		if (fcntl(fd, F_SETLKW, &fl) == -1) {
+      	  perror("fcntl");
+      	  exit(1);
+    	}
+    }
+
+    printf("got lock\n"); //DEBUG
+
+    return fl;
+}
+
+void flock_unlock(struct flock fl, int fd) {
+	fl.l_type = F_UNLCK;  /* set to unlock same region */
+
+    if (fcntl(fd, F_SETLK, &fl) == -1) {
+        perror("Cannot unlock");
+    }
 }
