@@ -1,8 +1,0 @@
-mkdir bin
-cd ./bin
-rm -rf *
-gcc -Wall -c ../src/main.c -o main.o -fno-builtin
-gcc -Wall -c ../src/actions.c -o actions.o -fno-builtin
-gcc -Wall -c ../src/db_connector.c -o db_connector.o -fno-builtin
-gcc -Wall -c ../src/client.c -o client.o -fno-builtin
-ld -T ../link.ld -o ipc main.o actions.o db_connector.o client.o

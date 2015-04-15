@@ -2,6 +2,7 @@
 
 /***** private *****/
 char * get_fname (char * movie_name) {
+    //FALTA EL RESTO DEL PATH!!!!
     int len = strlen(movie_name); //len: cant de letras del string sin incluir el '\0'
     char * fname;
     if ((fname = malloc (len+5))!=NULL) { // 5: '.''t''x''t''\0'
@@ -54,8 +55,8 @@ void flock_unlock(int start, int end, int fd) {
 }
 
 void write_booking(booking_t booking, int fd) {
-    char* data;
     int count = booking.end - booking.start;
+    char* data = calloc(count,sizeof(char));
     int i;
     for(i = 0; i < count; i++){
         data[i] = '1';
@@ -115,7 +116,7 @@ void charge_sala(sala_t sala, int fd) {
     }
 }
 
-BOOL validRange( int* start, int* end, sala_t sala ) {
+BOOL db_valid_range( int* start, int* end, sala_t sala ) {
     int start_p = get_position(start[0], start[1]);
     int end_p = get_position(end[0], end[1]);
     int i;
@@ -132,16 +133,7 @@ BOOL validRange( int* start, int* end, sala_t sala ) {
 BOOL checkValidRange(booking_t booking, int fd) {
     sala_t sala;
     charge_sala(sala, fd);
-    return validRange(booking.start, booking.end, sala);
-}
-
-/********** public methos ***********/
-/* Esto por el momento no hace nada y no retorna */
-int buy_tickets(booking_t booking){
-    int start = get_position(booking.start[0], booking.start[1]);//fila y columna paso
-    int end = get_position(booking.end[0], booking.end[1]);
-
-    return 1; //solo para sacar el warning
+    return db_valid_range(booking.start, booking.end, sala);
 }
 
 sala_t get_sala(char* pelicula) {
@@ -178,7 +170,7 @@ fixture_t get_movies() {
     /* Bloquear la base para lectura */
     flock_read(0, 0, fd);
     /* Charge movies */
-    charge_titles(ans, fd);
+    charge_titles(&ans, fd);
 
     flock_unlock(0, 0, fd);
     close(fd);
@@ -202,5 +194,9 @@ void confirmarReserva(booking_t booking) {
 /* Liberar la base */
     flock_unlock(0, 0, fd);
     close(fd);
+}
+
+int buy_tickets(booking_t b){
+	return 1;
 }
 
