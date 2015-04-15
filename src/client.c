@@ -1,11 +1,12 @@
 /* actions client - front */
 
 #include "../inc/client.h"
+#include <ctype.h>
 
 /* print sala with diferent colors (selected, bought, available) */
 void printSala (sala_t sala) {
     int i;
-    char color;
+    char* color;
     for(i=0;i<sala.rows*sala.cols;i++) {
         if(sala.places[i]==1)
             color=ANSI_COLOR_BOUGHT;
@@ -27,33 +28,29 @@ char* getMovieCode(){
 	do{
 		printf("%s\n", "Seleccione el número de película que desea ver");
 		scanf("%i", &index); 
-	} while(!(0 < index <= fixture.count));
+	} while(!(0 < index && index <= fixture.count));
 	return *(fixture.titles + index - 1);
 }
 
 void copyPlacesArray(int* first, int* second){
-	for (int i = 0; i < MAX_PLACES; i++){
+	int i;
+    for (i = 0; i < MAX_PLACES; i++){
 		*(second + i) = *(first + i);
 	}
 }
 
 /* get positon of the a booking sit */
-int* getPosition(char * msg) {
+void getPosition(int* pos, char * msg) {
     char cfil;
     int col;
     printf("%s\n", msg);
-    scanf("%c%d",&cfil,&col);	
-    int* rta;
-    rta = malloc(2 * sizeof(int));
-    rta[0]=((int) (cfil-'a')) - 1;
-    rta[1]=col - 1;
-
-    return rta;
+    scanf("%c%d",&cfil,&col);
+    pos[0]=((int) (cfil-'a')) - 1;
+    pos[1]=col - 1;
 }
 
 /* ask confirmation */
 BOOL askConfirmation(sala_t sala, booking_t b) {
-    int i;
     char c;
     int* aux = malloc(sizeof(int) * MAX_PLACES);
 
@@ -70,7 +67,7 @@ BOOL askConfirmation(sala_t sala, booking_t b) {
     do {
     printf("%s\n", "Desea confirmar su reserva? (S/N)");
     scanf("%c", &c);
-    } while(tolower(c)!='n'&&tolower(c)!='s'&&printf("\nPor favor ingrese una S o una N.")) 
+    } while(tolower(c)!='n'&&tolower(c)!='s'&&printf("\nPor favor ingrese una S o una N.")); 
     switch(c){
     	case 's':
     	case 'S':
@@ -87,18 +84,17 @@ BOOL askConfirmation(sala_t sala, booking_t b) {
 
 /* show sala and ask the sits to book */
 booking_t getBooking(char* movie_name) {
-	char * fname = get_fname (movie_name);
-	sala_t sala = get_sala (fname);
-	int* start;
-	int* end;
+	sala_t sala = get_sala (movie_name);
+	int* start = malloc(2*sizeof(int));
+	int* end = malloc(2*sizeof(int));
 	booking_t b;
 	b.movie_name=movie_name;
 
 	do {
         do {
             printSala(sala);
-            start = getPosition("\nPlease choose the first position you want to buy\n");
-            end = getPosition("\nPlease choose the last position you want to buy\n");
+            getPosition(start,"\nPlease choose the first position you want to buy\n");
+            getPosition(end,"\nPlease choose the last position you want to buy\n");
         } while ( !validRange(start, end, sala) ); //habría que ver si podemos dar un poco más de feedback para saber caul es el problema
         b.start=start;
         b.end=end;
