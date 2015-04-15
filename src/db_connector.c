@@ -116,7 +116,7 @@ void charge_sala(sala_t sala, int fd) {
     }
 }
 
-BOOL validRange( int* start, int* end, sala_t sala ) {
+BOOL db_valid_range( int* start, int* end, sala_t sala ) {
     int start_p = get_position(start[0], start[1]);
     int end_p = get_position(end[0], end[1]);
     int i;
@@ -133,7 +133,7 @@ BOOL validRange( int* start, int* end, sala_t sala ) {
 BOOL checkValidRange(booking_t booking, int fd) {
     sala_t sala;
     charge_sala(sala, fd);
-    return validRange(booking.start, booking.end, sala);
+    return db_valid_range(booking.start, booking.end, sala);
 }
 
 sala_t get_sala(char* pelicula) {
@@ -194,5 +194,9 @@ void confirmarReserva(booking_t booking) {
 /* Liberar la base */
     flock_unlock(0, 0, fd);
     close(fd);
+}
+
+int buy_tickets(booking_t b){
+	return 1;
 }
 
