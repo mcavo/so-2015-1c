@@ -1,140 +1,27 @@
 #include "../inc/db_connector.h"
 
-/***** private *****/
-char * get_fname (char * movie_name) {
-    //FALTA EL RESTO DEL PATH!!!!
-    int len = strlen(movie_name); //len: cant de letras del string sin incluir el '\0'
-    char * fname;
-    if ((fname = malloc (len+5))!=NULL) { // 5: '.''t''x''t''\0'
-        int i;
-        for(i=0;i<len;i++){
-            if(*(movie_name+i)==' ')
-                *(fname+i)='_';
-            else
-                *(fname+i)=*(movie_name+i);
-        }
-        *(fname+(len++))='.';
-        *(fname+(len++))='t';
-        *(fname+(len++))='x';
-        *(fname+(len++))='t';
-        *(fname+(len))=0;
-    }
-    return fname;
-}
+/** INCOMPLETA **/
+static char * get_fname (char * movie_name);
 
-void flock_creat(int start, int end, int fd, int type) {
-    struct flock fl;
+static void flock_creat(int start, int end, int fd, int type);
 
-    fl.l_type = type;
-    fl.l_whence = SEEK_SET;
-    fl.l_start = start;
-    fl.l_len = end;
-    fl.l_pid = getpid();
+static void flock_read(int start, int end, int fd);
 
-    if(fcntl(fd, F_SETLK, &fl) == -1) { //pensar bien los casos
-        printf("Trying to connect to database. Wait please...\n");
-        if (fcntl(fd, F_SETLKW, &fl) == -1) {
-          perror("fcntl");
-          exit(1);
-        }
-    }
+static void flock_write(int start, int end, int fd);
 
-    printf("got lock\n"); //DEBUG
-}
+static void flock_unlock(int start, int end, int fd);
 
-void flock_read(int start, int end, int fd) {
-    flock_creat(start, end, fd, F_RDLCK);
-}
-
-void flock_write(int start, int end, int fd) {
-    flock_creat(start, end, fd, F_WRLCK);
-}
-
-void flock_unlock(int start, int end, int fd) {
-    flock_creat(start, end, fd, F_UNLCK);
-}
-
-void write_booking(booking_t booking, int fd) {
-    int count = booking.end - booking.start;
-    char* data = calloc(count,sizeof(char));
-    int i;
-    for(i = 0; i < count; i++){
-        data[i] = '1';
-    }
-    /* queda ver como se escribe en el archivo */
-    //fwrite(fd, count, );
-}
+/** INCOMPLETA **/
+static void write_booking(booking_t booking, int fd);
 
 /* charge titles into an array of strings */
-void charge_titles(fixture_t * fixture, int fd){
-    char c;
-    int si=0, ci=0;
-    while(read(fd,&c,1) != 0)
-    {
-        switch(c) {
-            case '\n':
-                (fixture->titles)[si][ci] = '\0';
-                si++;
-                ci=0; //cambio de string
-                break;
-            default:
-                (fixture->titles)[si][ci++] = c;           
-                break;
-        }
-    }
-    (fixture->count)=si;
-}
+static void charge_titles(fixture_t * fixture, int fd);
 
-void charge_sala(sala_t sala, int fd) {
-    int index = 0;
-    int status = ROW_STATUS;
-    char c;
+static void charge_sala(sala_t sala, int fd);
 
-    while(read(fd,&c,1) != 0 && (status == END_STATUS)){ /* tendría que ser un get_int */
-        switch(status) {
-            case ROW_STATUS:
-                sala.rows = sala.rows*10 + c - '0';
-                if (c == ' ') 
-                    status = COL_STATUS;
-                break;
-            case COL_STATUS:
-                sala.cols = sala.cols*10 + c - '0';
-                if (c == ' ') 
-                    status = SITS_STATUS;
-                break;
-            case SITS_STATUS:
-                if(index >= sala.rows * sala.cols) {
-                    status = END_STATUS;
-                    for( ; index < MAX_PLACES ; index ++){ 
-                        sala.places[index] = -1;
-                    }
-                } else {
-                    sala.places[index ++] = c;
-                }
-                break;
-        }
-    }
-}
+static BOOL db_valid_range( int* start, int* end, sala_t sala );
 
-BOOL db_valid_range( int* start, int* end, sala_t sala ) {
-    int start_p = get_position(start[0], start[1]);
-    int end_p = get_position(end[0], end[1]);
-    int i;
-    if(end_p >= start_p && end_p < MAX_PLACES) {
-        for(i=0; i < (end_p - start_p); i++) {
-            if (sala.places[start_p + i] == 1)
-                return FALSE;
-        }
-        return TRUE;
-    }
-    return FALSE;
-}
-
-BOOL checkValidRange(booking_t booking, int fd) {
-    sala_t sala;
-    charge_sala(sala, fd);
-    return db_valid_range(booking.start, booking.end, sala);
-}
+static BOOL check_valid_range(booking_t booking, int fd);
 
 sala_t get_sala(char* pelicula) {
     sala_t sala;
@@ -200,3 +87,137 @@ int buy_tickets(booking_t b){
 	return 1;
 }
 
+
+static char * get_fname (char * movie_name) {
+    //FALTA EL RESTO DEL PATH!!!!
+    int len = strlen(movie_name); //len: cant de letras del string sin incluir el '\0'
+    char * fname;
+    if ((fname = malloc (len+5))!=NULL) { // 5: '.''t''x''t''\0'
+        int i;
+        for(i=0;i<len;i++){
+            if(*(movie_name+i)==' ')
+                *(fname+i)='_';
+            else
+                *(fname+i)=*(movie_name+i);
+        }
+        *(fname+(len++))='.';
+        *(fname+(len++))='t';
+        *(fname+(len++))='x';
+        *(fname+(len++))='t';
+        *(fname+(len))=0;
+    }
+    return fname;
+}
+
+static void flock_creat(int start, int end, int fd, int type) {
+    struct flock fl;
+
+    fl.l_type = type;
+    fl.l_whence = SEEK_SET;
+    fl.l_start = start;
+    fl.l_len = end;
+    fl.l_pid = getpid();
+
+    if(fcntl(fd, F_SETLK, &fl) == -1) { //pensar bien los casos
+        printf("Trying to connect to database. Wait please...\n");
+        if (fcntl(fd, F_SETLKW, &fl) == -1) {
+          perror("fcntl");
+          exit(1);
+        }
+    }
+
+    printf("got lock\n"); //DEBUG
+}
+
+static void flock_read(int start, int end, int fd) {
+    flock_creat(start, end, fd, F_RDLCK);
+}
+
+static void flock_write(int start, int end, int fd) {
+    flock_creat(start, end, fd, F_WRLCK);
+}
+
+static void flock_unlock(int start, int end, int fd) {
+    flock_creat(start, end, fd, F_UNLCK);
+}
+
+static void write_booking(booking_t booking, int fd) {
+    int count = booking.end - booking.start;
+    char* data = calloc(count,sizeof(char));
+    int i;
+    for(i = 0; i < count; i++){
+        data[i] = '1';
+    }
+    /* queda ver como se escribe en el archivo */
+    //fwrite(fd, count, );
+}
+
+static void charge_titles(fixture_t * fixture, int fd){
+    char c;
+    int si=0, ci=0;
+    while(read(fd,&c,1) != 0)
+    {
+        switch(c) {
+            case '\n':
+                (fixture->titles)[si][ci] = '\0';
+                si++;
+                ci=0; //cambio de string
+                break;
+            default:
+                (fixture->titles)[si][ci++] = c;           
+                break;
+        }
+    }
+    (fixture->count)=si;
+}
+
+static void charge_sala(sala_t sala, int fd) {
+    int index = 0;
+    int status = ROW_STATUS;
+    char c;
+
+    while(read(fd,&c,1) != 0 && (status == END_STATUS)){ /* tendría que ser un get_int */
+        switch(status) {
+            case ROW_STATUS:
+                sala.rows = sala.rows*10 + c - '0';
+                if (c == ' ') 
+                    status = COL_STATUS;
+                break;
+            case COL_STATUS:
+                sala.cols = sala.cols*10 + c - '0';
+                if (c == ' ') 
+                    status = SITS_STATUS;
+                break;
+            case SITS_STATUS:
+                if(index >= sala.rows * sala.cols) {
+                    status = END_STATUS;
+                    for( ; index < MAX_PLACES ; index ++){ 
+                        sala.places[index] = -1;
+                    }
+                } else {
+                    sala.places[index ++] = c;
+                }
+                break;
+        }
+    }
+}
+
+static BOOL db_valid_range( int* start, int* end, sala_t sala ) {
+    int start_p = get_position(start[0], start[1]);
+    int end_p = get_position(end[0], end[1]);
+    int i;
+    if(end_p >= start_p && end_p < MAX_PLACES) {
+        for(i=0; i < (end_p - start_p); i++) {
+            if (sala.places[start_p + i] == 1)
+                return FALSE;
+        }
+        return TRUE;
+    }
+    return FALSE;
+}
+
+static BOOL check_valid_range(booking_t booking, int fd) {
+    sala_t sala;
+    charge_sala(sala, fd);
+    return db_valid_range(booking.start, booking.end, sala);
+}
