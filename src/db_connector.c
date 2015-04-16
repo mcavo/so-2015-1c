@@ -54,10 +54,9 @@ fixture_t * get_movies() {
         perror("open fixture");
         return NULL;
     }
-    flock_unlock(0, 0, fd);
     ans = malloc(sizeof(fixture_t));
     /* Bloquear la base para lectura */
-    flock_write(0, 0, fd);
+    flock_read(0, 0, fd);
     /* Charge movies */
     charge_titles(ans, fd);
 
