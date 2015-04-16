@@ -12,7 +12,7 @@ static void flock_write(int start, int end, int fd);
 static void flock_unlock(int start, int end, int fd);
 
 /** INCOMPLETA **/
-static void write_booking(booking_t booking, int fd);
+static void write_booking(booking_t bogetoking, int fd);
 
 /* charge titles into an array of strings */
 static void charge_titles(fixture_t * fixture, int fd);
@@ -50,7 +50,7 @@ fixture_t get_movies() {
     //fixture_t ans = malloc(sizeof(fixture_t));
     fixture_t ans;
     /* Abrir el archivo para lectura */
-    if ((fd = open("../database/fixture.txt", O_RDWR)) == -1) {
+    if ((fd = open("./database/fixture.txt", O_RDONLY)) == -1) {
         perror("open fixture");
         exit(1);
     }
