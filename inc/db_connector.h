@@ -44,7 +44,7 @@ typedef struct {
 	int count; /* cantidad de películas a mostrar*/
 }  fixture_t;
 
-void confirmarReserva(booking_t booking);
+void confirm_booking (booking_t booking);
 fixture_t get_movies();
 sala_t get_sala(char* pelicula);
 int buy_tickets(booking_t booking);

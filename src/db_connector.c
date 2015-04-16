@@ -65,7 +65,7 @@ fixture_t get_movies() {
     return ans;
 }
 
-void confirmarReserva(booking_t booking) {
+void confirm_booking (booking_t booking) {
     int fd;
     fd = open(booking.movie_name, O_RDWR);
 
@@ -73,7 +73,7 @@ void confirmarReserva(booking_t booking) {
     flock_write(0, 0, fd);
 
 /* Checkear que los asientos estén disponibles */
-    if(checkValidRange(booking, fd)){
+    if(check_valid_range(booking, fd)){
     
     /* Modificar los asientosa ocupados */
         write_booking(booking, fd);
