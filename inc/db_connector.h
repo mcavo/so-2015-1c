@@ -5,6 +5,11 @@
 #include <unistd.h>
 #include <string.h>
 
+#define MAX_MOVIE_TITLE 20
+#define MAX_SALA 20
+
+#define MAX_LARGE 2
+
 #define MAX_RESERVA 15
 #define MAX_COL 6
 #define MAX_ROW 7
@@ -45,6 +50,6 @@ typedef struct {
 }  fixture_t;
 
 void confirm_booking (booking_t booking);
-fixture_t get_movies();
+fixture_t * get_movies();
 sala_t get_sala(char* pelicula);
 int buy_tickets(booking_t booking);

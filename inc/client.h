@@ -7,5 +7,5 @@
 #include <string.h>
 #include "actions.h"
 
-fixture_t actionShowMovies();
+int actionShowMovies();
 int actionBuyTickets();

@@ -45,19 +45,21 @@ sala_t get_sala(char* pelicula) {
     return sala;
 }
 
-fixture_t get_movies() {
+fixture_t * get_movies() {
     int fd;
-    //fixture_t ans = malloc(sizeof(fixture_t));
-    fixture_t ans;
+    fixture_t * ans;
     /* Abrir el archivo para lectura */
+
     if ((fd = open("./database/fixture.txt", O_RDONLY)) == -1) {
         perror("open fixture");
-        exit(1);
+        return NULL;
     }
+    flock_unlock(0, 0, fd);
+    ans = malloc(sizeof(fixture_t));
     /* Bloquear la base para lectura */
-    flock_read(0, 0, fd);
+    flock_write(0, 0, fd);
     /* Charge movies */
-    charge_titles(&ans, fd);
+    charge_titles(ans, fd);
 
     flock_unlock(0, 0, fd);
     close(fd);
@@ -155,28 +157,40 @@ static void write_booking(booking_t booking, int fd) {
 static void charge_titles(fixture_t * fixture, int fd){
     char c;
     int si=0, ci=0;
+    fixture->titles = malloc(sizeof(char*)*MAX_SALA);
+	//perror("Not enough memory");
+    for(;si<MAX_SALA;si++) {
+	   fixture->titles[si] = malloc(sizeof(char)*(MAX_MOVIE_TITLE+1));
+    }
+    si=0;
     while(read(fd,&c,1) != 0)
     {
         switch(c) {
             case '\n':
                 (fixture->titles)[si][ci] = '\0';
+                fixture->titles[si]=realloc(fixture->titles[si],sizeof(char)*(ci+1));
                 si++;
                 ci=0; //cambio de string
                 break;
             default:
-                (fixture->titles)[si][ci++] = c;           
+                if(si<MAX_SALA && ci<=MAX_MOVIE_TITLE) {
+                    if(ci==MAX_MOVIE_TITLE)
+                        (fixture->titles)[si][ci++] = '\0'; 
+                    else
+                        (fixture->titles)[si][ci++] = c; 
+                }        
                 break;
         }
     }
+    fixture->titles=realloc(fixture->titles,sizeof(char*));
     (fixture->count)=si;
 }
 
 static void charge_sala(sala_t sala, int fd) {
     int index = 0;
-    int status = ROW_STATUS;
     char c;
-
-    while(read(fd,&c,1) != 0 && (status == END_STATUS)){ /* tendría que ser un get_int */
+    int status = ROW_STATUS;
+    while(read(fd,&c,1) != 0 && (status != END_STATUS)){ /* tendría que ser un get_int */
         switch(status) {
             case ROW_STATUS:
                 sala.rows = sala.rows*10 + c - '0';

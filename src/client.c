@@ -21,20 +21,16 @@ static BOOL askConfirmation(sala_t sala, booking_t b);
 /* show sala and ask the sits to book */
 static booking_t getBooking(char* movie_name);
 
-/* Show the list of films */
-fixture_t actionShowMovies() {
-    int i = 0;
-    fixture_t movies = get_movies();
+static void printMovieList(fixture_t * fix);
 
-    printf("\n  MOVIES LIST \n\
-  -----------\n");
+/* Show the list of films */
+int actionShowMovies() {
     
-    for ( ; i < movies.count; i++) {
-        printf("%i- %s\n", i + 1, movies.titles[i]);
-    }
-    
-    return movies;
+    printMovieList(get_movies());
+    return 0;
 }
+
+
 
 //Retorna 0 si la operacion fue exitosa y -1 sino. En el front se trata la accion a seguir.
 int actionBuyTickets() {
@@ -63,13 +59,22 @@ void static printSala (sala_t sala) {
 
 /****** VER DE COPIAR A UN UNICO CHAR * Y LIBERAR LA MEM DE TODA LA MATRIZ *****/
 static char* getMovieCode(){
-	int index;
-	fixture_t fixture = actionShowMovies();
+	int index, i;
+	fixture_t * fixture = get_movies();
+    char * rta;
+    printMovieList(fixture);
 	do{
 		printf("%s\n", "Seleccione el número de película que desea ver");
 		scanf("%i", &index); 
-	} while(!(0 < index && index <= fixture.count));
-	return *(fixture.titles + index - 1);
+	} while(!(0 < index && index <= fixture->count));
+    for (i=0 ; i<fixture->count ; i++) {
+        if(i != index -1)
+            free(fixture->titles[i]);
+    }
+	rta =  fixture->titles[ index - 1];
+    free(fixture->titles);
+    free(fixture);
+    return rta;
 }
 
 static void getPosition(int* pos, char * msg) {
@@ -138,4 +143,18 @@ booking_t getBooking(char* movie_name) {
 	} while ( askConfirmation(sala, b) );
 
 	return b;
+}
+
+static void printMovieList(fixture_t * fix) {
+    if(fix==NULL) {
+	printf("\n Database problem. Imposible to charge fixture.");
+	return;
+    }
+    int i = 0;
+    printf("\n  MOVIES LIST \n\
+  -----------\n");
+    
+    for ( ; i < fix->count; i++) {
+        printf("%i- %s\n", i + 1, fix->titles[i]);
+    }
 }
