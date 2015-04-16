@@ -4,7 +4,46 @@
 #include <ctype.h>
 
 /* print sala with diferent colors (selected, bought, available) */
-void printSala (sala_t sala) {
+static void printSala (sala_t sala);
+
+/* devuelve un puntero al titulo de la pelicula deseada */
+/****** VER DE COPIAR A UN UNICO CHAR * Y LIBERAR LA MEM DE TODA LA MATRIZ *****/
+static char* getMovieCode();
+
+static void copyPlacesArray(int* first, int* second);
+
+/* get positon of the a booking sit */
+static void getPosition(int* pos, char * msg);
+
+/* ask confirmation */
+static BOOL askConfirmation(sala_t sala, booking_t b);
+
+/* show sala and ask the sits to book */
+static booking_t getBooking(char* movie_name);
+
+/* Show the list of films */
+fixture_t actionShowMovies() {
+    int i = 0;
+    fixture_t movies = get_movies();
+
+    printf("\n  MOVIES LIST \n\
+  -----------\n");
+    
+    for ( ; i < movies.count; i++) {
+        printf("%i- %s\n", i + 1, movies.titles[i]);
+    }
+    
+    return movies;
+}
+
+//Retorna 0 si la operacion fue exitosa y -1 sino. En el front se trata la accion a seguir.
+int actionBuyTickets() {
+	char* cod = getMovieCode();
+	booking_t booking = getBooking(cod);
+	return buy_tickets(booking);
+}
+
+void static printSala (sala_t sala) {
     int i;
     char* color;
     for(i=0;i<sala.rows*sala.cols;i++) {
@@ -22,7 +61,8 @@ void printSala (sala_t sala) {
     }
 }
 
-char* getMovieCode(){
+/****** VER DE COPIAR A UN UNICO CHAR * Y LIBERAR LA MEM DE TODA LA MATRIZ *****/
+static char* getMovieCode(){
 	int index;
 	fixture_t fixture = actionShowMovies();
 	do{
@@ -32,15 +72,7 @@ char* getMovieCode(){
 	return *(fixture.titles + index - 1);
 }
 
-void copyPlacesArray(int* first, int* second){
-	int i;
-    for (i = 0; i < MAX_PLACES; i++){
-		*(second + i) = *(first + i);
-	}
-}
-
-/* get positon of the a booking sit */
-void getPosition(int* pos, char * msg) {
+static void getPosition(int* pos, char * msg) {
     char cfil;
     int col;
     printf("%s\n", msg);
@@ -49,8 +81,14 @@ void getPosition(int* pos, char * msg) {
     pos[1]=col - 1;
 }
 
-/* ask confirmation */
-BOOL askConfirmation(sala_t sala, booking_t b) {
+static void copyPlacesArray(int* first, int* second){
+	int i;
+    for (i = 0; i < MAX_PLACES; i++){
+		*(second + i) = *(first + i);
+	}
+}
+
+static BOOL askConfirmation(sala_t sala, booking_t b) {
     char c;
     int* aux = malloc(sizeof(int) * MAX_PLACES);
 
@@ -82,7 +120,6 @@ BOOL askConfirmation(sala_t sala, booking_t b) {
     return FALSE; //hay que ver si esto está realmente bien. Si ingresa otra cosa
 }
 
-/* show sala and ask the sits to book */
 booking_t getBooking(char* movie_name) {
 	sala_t sala = get_sala (movie_name);
 	int* start = malloc(2*sizeof(int));
@@ -101,26 +138,4 @@ booking_t getBooking(char* movie_name) {
 	} while ( askConfirmation(sala, b) );
 
 	return b;
-}
-
-/* Show the list of films */
-fixture_t actionShowMovies() {
-    int i = 0;
-    fixture_t movies = get_movies();
-
-    printf("\n  MOVIES LIST \n\
-  -----------\n");
-    
-    for ( ; i < movies.count; i++) {
-        printf("%i- %s\n", i + 1, movies.titles[i]);
-    }
-    
-    return movies;
-}
-
-//Retorna 0 si la operacion fue exitosa y -1 sino. En el front se trata la accion a seguir.
-int actionBuyTickets() {
-	char* cod = getMovieCode();
-	booking_t booking = getBooking(cod);
-	return buy_tickets(booking);
 }
