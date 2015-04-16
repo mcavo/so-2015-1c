@@ -12,19 +12,19 @@ static void flock_write(int start, int end, int fd);
 static void flock_unlock(int start, int end, int fd);
 
 /** INCOMPLETA **/
-static void write_booking(booking_t bogetoking, int fd);
+static void write_booking(booking_t * bogetoking, int fd);
 
 /* charge titles into an array of strings */
 static void charge_titles(fixture_t * fixture, int fd);
 
-static void charge_sala(sala_t sala, int fd);
+static void charge_sala(sala_t * sala, int fd);
 
-static BOOL db_valid_range( int* start, int* end, sala_t sala );
+static BOOL db_valid_range( int* start, int* end, sala_t * sala );
 
-static BOOL check_valid_range(booking_t booking, int fd);
+static BOOL check_valid_range(booking_t * booking, int fd);
 
-sala_t get_sala(char* pelicula) {
-    sala_t sala;
+sala_t * get_sala(char* pelicula) {
+    sala_t * sala;
     int fd = open(pelicula, O_RDWR);
     
     if (fd==-1) {
@@ -66,9 +66,9 @@ fixture_t * get_movies() {
     return ans;
 }
 
-void confirm_booking (booking_t booking) {
+void confirm_booking (booking_t * booking) {
     int fd;
-    fd = open(booking.movie_name, O_RDWR);
+    fd = open(booking->movie_name, O_RDWR);
 
 /* Bloquear la base para que no puedan leer ni escribir y abrir la conexión */
     flock_write(0, 0, fd);
@@ -84,7 +84,7 @@ void confirm_booking (booking_t booking) {
     close(fd);
 }
 
-int buy_tickets(booking_t b){
+int buy_tickets(booking_t * b){
 	return 1;
 }
 
@@ -142,8 +142,8 @@ static void flock_unlock(int start, int end, int fd) {
     flock_creat(start, end, fd, F_UNLCK);
 }
 
-static void write_booking(booking_t booking, int fd) {
-    int count = booking.end - booking.start;
+static void write_booking(booking_t * booking, int fd) {
+    int count = booking->end - booking->start;
     char* data = calloc(count,sizeof(char));
     int i;
     for(i = 0; i < count; i++){
@@ -185,43 +185,43 @@ static void charge_titles(fixture_t * fixture, int fd){
     (fixture->count)=si;
 }
 
-static void charge_sala(sala_t sala, int fd) {
+static void charge_sala(sala_t * sala, int fd) {
     int index = 0;
     char c;
     int status = ROW_STATUS;
     while(read(fd,&c,1) != 0 && (status != END_STATUS)){ /* tendría que ser un get_int */
         switch(status) {
             case ROW_STATUS:
-                sala.rows = sala.rows*10 + c - '0';
+                sala->rows = sala->rows*10 + c - '0';
                 if (c == ' ') 
                     status = COL_STATUS;
                 break;
             case COL_STATUS:
-                sala.cols = sala.cols*10 + c - '0';
+                sala->cols = sala->cols*10 + c - '0';
                 if (c == ' ') 
                     status = SITS_STATUS;
                 break;
             case SITS_STATUS:
-                if(index >= sala.rows * sala.cols) {
+                if(index >= sala->rows * sala->cols) {
                     status = END_STATUS;
                     for( ; index < MAX_PLACES ; index ++){ 
-                        sala.places[index] = -1;
+                        sala->places[index] = -1;
                     }
                 } else {
-                    sala.places[index ++] = c;
+                    sala->places[index ++] = c;
                 }
                 break;
         }
     }
 }
 
-static BOOL db_valid_range( int* start, int* end, sala_t sala ) {
+static BOOL db_valid_range( int* start, int* end, sala_t * sala ) {
     int start_p = get_position(start[0], start[1]);
     int end_p = get_position(end[0], end[1]);
     int i;
     if(end_p >= start_p && end_p < MAX_PLACES) {
         for(i=0; i < (end_p - start_p); i++) {
-            if (sala.places[start_p + i] == 1)
+            if (sala->places[start_p + i] == 1)
                 return FALSE;
         }
         return TRUE;
@@ -229,8 +229,8 @@ static BOOL db_valid_range( int* start, int* end, sala_t sala ) {
     return FALSE;
 }
 
-static BOOL check_valid_range(booking_t booking, int fd) {
-    sala_t sala;
+static BOOL check_valid_range(booking_t * booking, int fd) {
+    sala_t * sala;
     charge_sala(sala, fd);
-    return db_valid_range(booking.start, booking.end, sala);
+    return db_valid_range(booking->start, booking->end, sala);
 }
