@@ -87,7 +87,7 @@ static void getPosition(int* pos, char * msg) {
     char crow;
     int col;
     printf("%s\n", msg);
-    scanf("%c%d",&crow,&col);
+    scanf("%s %d",&crow,&col);
     pos[0]=((int) (tolower(crow)-'a')) - 1;
     pos[1]=col - 1;
 }
