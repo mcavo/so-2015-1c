@@ -33,7 +33,9 @@ int actionShowMovies() {
 int actionBuyTickets() {
 	char* title = getMovieTitle();
 	booking_t * booking = getBooking(title);
-	return buy_tickets(booking);
+    if(booking!=NULL)
+	   return buy_tickets(booking);
+    return -1;
 }
 
 void static printSala (sala_t sala) {
@@ -92,7 +94,7 @@ static void getPosition(int* pos, char * msg) {
     pos[1]=col - 1;
 }
 
-static BOOL askConfirmation(sala_t * sala, booking_t * b) {
+static int askConfirmation(sala_t * sala, booking_t * b) {
     char c;
     char* aux = malloc(sizeof(char) * (1+sala->rows*sala->cols));
 
@@ -106,20 +108,21 @@ static BOOL askConfirmation(sala_t * sala, booking_t * b) {
     printSala(*sala); //este print no debería estar acá.
     // PREGUNTAR SI CONFIRMA
     //SPANGLISH ALERT! 
+    printf("%s\n", "Desea confirmar su reserva? (S/N)");
     do {
-        printf("%s\n", "Desea confirmar su reserva? (S/N)");
+        printf("%s\n","Ingrese Q para cancelar la transaccion.");
         scanf("%c", &c);
-    } while(tolower(c)!='n'&&tolower(c)!='s'&&printf("\nPor favor ingrese una S o una N.")); 
+        fflush( stdin );
+    } while(tolower(c)!='n'&&tolower(c)!='s'&& tolower(c)!='q'&&printf("Por favor ingrese una S o una N.\n")); 
     switch(tolower(c)){
     	case 's':
-    		return TRUE;
-    		break;
+    		return CONFIRM;
     	case 'n':
     		sala->places = aux;
-    		return FALSE;
-    		break;
-    }
-    return FALSE; //hay que ver si esto está realmente bien. Si ingresa otra cosa
+    		return DONT_CONFIRM;
+        default:
+            return QUIT;
+    }; //hay que ver si esto está realmente bien. Si ingresa otra cosa
 }
 
 booking_t * getBooking(char* movie_name) {
@@ -128,6 +131,7 @@ booking_t * getBooking(char* movie_name) {
 	int* end = malloc(2*sizeof(int));
 	booking_t * b = calloc(1,sizeof(booking_t));
 	b->movie_name=movie_name;
+    int aux;
 
 	do {
         do {
@@ -138,8 +142,9 @@ booking_t * getBooking(char* movie_name) {
         } while ( !validRange(start, end, sala) ); //habría que ver si podemos dar un poco más de feedback para saber caul es el problema
         b->start=start;
         b->end=end;
-	} while ( askConfirmation(sala, b) );
-
+	} while ( (aux=askConfirmation(sala, b))==DONT_CONFIRM );
+    if(aux==QUIT)
+        b=NULL;
 	return b;
 }
 
