@@ -96,8 +96,8 @@ static BOOL askConfirmation(sala_t * sala, booking_t * b) {
     char c;
     char* aux = malloc(sizeof(char) * (1+sala->rows*sala->cols));
 
-    int start_p = get_position(b->start[0], b->start[1]);
-    int end_p = get_position(b->end[0], b->end[1]);
+    int start_p = get_position(b->start[0], b->start[1],sala->cols);
+    int end_p = get_position(b->end[0], b->end[1],sala->cols);
 
     aux=memcpy(aux,sala->places,sala->rows * sala->cols);
 

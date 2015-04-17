@@ -7,8 +7,8 @@
 
 /* función repetida.. no se donde ponerla */
 BOOL validRange( int* start, int* end, sala_t * sala ) {
-    int start_p = get_position(start[0], start[1]);
-    int end_p = get_position(end[0], end[1]);
+    int start_p = get_position(start[0], start[1],sala->cols);
+    int end_p = get_position(end[0], end[1],sala->cols);
     int i;
     if(end_p >= start_p && end_p < sala->rows*sala->cols) {
         for(i=0; i < (end_p - start_p); i++) {

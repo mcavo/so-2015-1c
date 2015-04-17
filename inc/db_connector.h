@@ -16,7 +16,7 @@
 #define MAX_COL 6
 #define MAX_ROW 7
 #define MAX_PLACES MAX_COL*MAX_ROW
-#define get_position(row, col)  ((row*MAX_COL)+col+1)
+#define get_position(row, col,COLS)  ((row*COLS)+col)
 #define invalid_ticket_interval(start, end) (end>start)? 1:0
 
 /* state machine for readind film text */
