@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
+#include <ctype.h>
 
 #define MAX_MOVIE_TITLE 20
 #define MAX_SALA 20
@@ -36,7 +37,7 @@ typedef struct {
 	char* name;
 	int cols;
 	int rows;
-	int* places; /* si la cantidad es inferior, el resto se completa con -1 */
+	char* places;
 } sala_t;
 
 typedef struct {

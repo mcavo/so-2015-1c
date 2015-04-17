@@ -24,9 +24,9 @@ static BOOL db_valid_range( int* start, int* end, sala_t * sala );
 static BOOL check_valid_range(booking_t * booking, int fd);
 
 sala_t * get_sala(char* pelicula) {
-    sala_t * sala;
-    int fd = open(pelicula, O_RDWR);
-    
+    sala_t * sala = malloc(sizeof(sala_t));
+    char * fname = get_fname(pelicula);
+    int fd = open(fname, O_RDWR);
     if (fd==-1) {
         perror("open fixture");
         exit(1);
@@ -89,24 +89,26 @@ int buy_tickets(booking_t * b){
 }
 
 
+
 static char * get_fname (char * movie_name) {
     //FALTA EL RESTO DEL PATH!!!!
+    char * path;
+    char * p = "./database/";
+    path = malloc((strlen(movie_name)+1)*sizeof(char));
+    memcpy(path,p,strlen(p));
     int len = strlen(movie_name); //len: cant de letras del string sin incluir el '\0'
-    char * fname;
-    if ((fname = malloc (len+5))!=NULL) { // 5: '.''t''x''t''\0'
-        int i;
-        for(i=0;i<len;i++){
-            if(*(movie_name+i)==' ')
-                *(fname+i)='_';
-            else
-                *(fname+i)=*(movie_name+i);
-        }
-        *(fname+(len++))='.';
-        *(fname+(len++))='t';
-        *(fname+(len++))='x';
-        *(fname+(len++))='t';
-        *(fname+(len))=0;
+    char * fname = malloc((len+1)*sizeof(char));
+    int i=0;
+    for(;movie_name[i]!='\0';i++) {
+        if(movie_name[i]==' ')
+            fname[i]='_';
+        else
+            fname[i]=tolower(movie_name[i]);
     }
+    fname[i]='\0';
+    fname = strcat(path,fname);
+    fname = strcat(fname,".txt");
+    //free(path); tiene problemas ??????
     return fname;
 }
 
@@ -185,34 +187,36 @@ static void charge_titles(fixture_t * fixture, int fd){
     (fixture->count)=si;
 }
 
+//VER DE HACERLA DEVOLVER UN INT POR SI EL ARCHIVO ESTA MALFORMADO
 static void charge_sala(sala_t * sala, int fd) {
     int index = 0;
     char c;
     int status = ROW_STATUS;
+    sala->rows=0;
+    sala->cols=0;
     while(read(fd,&c,1) != 0 && (status != END_STATUS)){ /* tendría que ser un get_int */
         switch(status) {
             case ROW_STATUS:
-                sala->rows = sala->rows*10 + c - '0';
                 if (c == ' ') 
                     status = COL_STATUS;
+                else
+                    sala->rows = sala->rows*10 + c - '0';
                 break;
             case COL_STATUS:
-                sala->cols = sala->cols*10 + c - '0';
-                if (c == ' ') 
+                if (c == ' ') {
                     status = SITS_STATUS;
+                    sala->places=malloc(((sala->rows*sala->cols) +1)*sizeof(char));
+                } else
+                    sala->cols = sala->cols*10 + c - '0';
                 break;
             case SITS_STATUS:
-                if(index >= sala->rows * sala->cols) {
-                    status = END_STATUS;
-                    for( ; index < MAX_PLACES ; index ++){ 
-                        sala->places[index] = -1;
-                    }
-                } else {
+                if(index < sala->rows * sala->cols) {
                     sala->places[index ++] = c;
                 }
                 break;
         }
     }
+    sala->places[sala->rows*sala->cols]='\0';
 }
 
 static BOOL db_valid_range( int* start, int* end, sala_t * sala ) {
