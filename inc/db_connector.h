@@ -4,6 +4,13 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
+#include <ctype.h>
+
+#define MAX_MOVIE_TITLE 20
+#define MAX_SALA 20
+
+#define MAX_LARGE_ROW 2
+#define MAX_LARGE_COL 2
 
 #define MAX_RESERVA 15
 #define MAX_COL 6
@@ -30,7 +37,7 @@ typedef struct {
 	char* name;
 	int cols;
 	int rows;
-	int* places; /* si la cantidad es inferior, el resto se completa con -1 */
+	char* places;
 } sala_t;
 
 typedef struct {
@@ -44,7 +51,7 @@ typedef struct {
 	int count; /* cantidad de películas a mostrar*/
 }  fixture_t;
 
-void confirmarReserva(booking_t booking);
-fixture_t get_movies();
-sala_t get_sala(char* pelicula);
-int buy_tickets(booking_t booking);
+void confirm_booking (booking_t * booking);
+fixture_t * get_movies();
+sala_t * get_sala(char* pelicula);
+int buy_tickets(booking_t * booking);
