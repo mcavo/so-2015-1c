@@ -111,6 +111,7 @@ static int askConfirmation(sala_t * sala, booking_t * b) {
     printf("%s\n", "Desea confirmar su reserva? (S/N)");
     do {
         printf("%s\n","Ingrese Q para cancelar la transaccion.");
+        fflush( stdin );
         scanf("%c", &c);
         fflush( stdin );
     } while(tolower(c)!='n'&&tolower(c)!='s'&& tolower(c)!='q'&&printf("Por favor ingrese una S o una N.\n")); 
@@ -136,6 +137,7 @@ booking_t * getBooking(char* movie_name) {
 	do {
         do {
             printSala(*sala);
+            fflush( stdin );
             getPosition(start,"\nPlease choose the first position you want to buy\n");
             fflush( stdin );
             getPosition(end,"\nPlease choose the last position you want to buy\n");

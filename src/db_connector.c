@@ -23,6 +23,14 @@ static BOOL db_valid_range( int* start, int* end, sala_t * sala );
 
 static BOOL check_valid_range(booking_t * booking, int fd);
 
+static void close_operation(int start, int end, int fd);
+
+static BOOL seats_occupied(int start, int end, int fd);
+
+static void get_seats(int start, int end, int fd);
+
+static int open_file(char* movie_name);
+
 sala_t * get_sala(char* pelicula) {
     sala_t * sala = malloc(sizeof(sala_t));
     char * fname = get_fname(pelicula);
@@ -84,11 +92,32 @@ void confirm_booking (booking_t * booking) {
     close(fd);
 }
 
-int buy_tickets(booking_t * b){
-	return 1;
+
+int buy_tickets(booking_t * booking){
+    
+    int start, end, fd;
+    sala_t * sala = get_sala(booking->movie_name);
+    start = get_position(booking->start[0],booking->start[1],sala->cols);//fila y columna paso
+    end = get_position(booking->end[0],booking->end[1],sala->cols);
+    
+    if(invalid_ticket_interval(start, end)||end>=(sala->cols*sala->rows)||start<0)
+        return INVALID_INTERVAL;
+    start+=CHAR_LEN_ROW+CHAR_LEN_COL+2;
+    end+=CHAR_LEN_ROW+CHAR_LEN_COL+2;
+    fd = open_file(booking->movie_name);
+    flock_write(start, end, fd);
+
+    if(seats_occupied(start,end,fd)){
+        
+        close_operation(start,end, fd);
+        return OCCUPIED_SEATS;
+    }
+    
+    get_seats(start, end, fd);
+    close_operation(start,end, fd);
+
+    return SUCCESFUL_OPERATION;
 }
-
-
 
 static char * get_fname (char * movie_name) {
     //FALTA EL RESTO DEL PATH!!!!
@@ -238,3 +267,51 @@ static BOOL check_valid_range(booking_t * booking, int fd) {
     charge_sala(sala, fd);
     return db_valid_range(booking->start, booking->end, sala);
 }
+
+static void close_operation(int start, int end, int fd){
+    flock_unlock(start, end, fd);
+    close(fd);
+}
+
+static BOOL seats_occupied(int start, int end, int fd){
+
+    int i;
+    char seat;
+
+    for(i=start;i<=end;i++){
+
+        lseek(fd, i, SEEK_SET);
+        read(fd,&seat,1);
+        
+        if(seat==OCCUPIED)
+            return TRUE;
+    }
+
+    return FALSE;
+}
+
+static void get_seats(int start, int end, int fd){
+
+    int i;
+    
+    for(i=start;i<=end;i++){
+
+        lseek(fd, i, SEEK_SET);
+        write(fd,"1",1);
+
+    }
+
+}
+
+static int open_file(char* movie_name){
+
+    int fd;
+    char* root = get_fname(movie_name);
+    
+    if ((fd = open(root , O_RDWR)) == -1) {
+        perror("DB error.\n");
+        return -1;
+    }
+
+    return fd;
+} 
