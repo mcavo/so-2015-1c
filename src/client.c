@@ -88,7 +88,7 @@ static void getPosition(int* pos, char * msg) {
     int col;
     printf("%s\n", msg);
     scanf("%s %d",&crow,&col);
-    pos[0]=((int) (tolower(crow)-'a')) - 1;
+    pos[0]=(int) (tolower(crow)-'a');
     pos[1]=col - 1;
 }
 
@@ -135,8 +135,6 @@ booking_t * getBooking(char* movie_name) {
             getPosition(start,"\nPlease choose the first position you want to buy\n");
             fflush( stdin );
             getPosition(end,"\nPlease choose the last position you want to buy\n");
-            printf("start: %d-%d\n",start[0],start[1]);
-            printf("end: %d-%d\n",end[0],end[1]);
         } while ( !validRange(start, end, sala) ); //habría que ver si podemos dar un poco más de feedback para saber caul es el problema
         b->start=start;
         b->end=end;
