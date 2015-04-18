@@ -11,20 +11,29 @@ static void flock_write(int start, int end, int fd);
 
 static void flock_unlock(int start, int end, int fd);
 
-/** INCOMPLETA **/
+/** NO SE USA **/
 static void write_booking(booking_t * bogetoking, int fd);
 
 /* charge titles into an array of strings */
 static void charge_titles(fixture_t * fixture, int fd);
 
-static void charge_sala(sala_t * sala, int fd);
+static void charge_sala(sala_t ** sala, int fd);
 
+/*NO SE USA*/
 static BOOL db_valid_range( int* start, int* end, sala_t * sala );
 
 static BOOL check_valid_range(booking_t * booking, int fd);
 
+static void close_operation(int start, int end, int fd);
+
+static BOOL seats_occupied(int start, int end, int fd);
+
+static void get_seats(int start, int end, int fd);
+
+static int open_file(char* movie_name);
+
 sala_t * get_sala(char* pelicula) {
-    sala_t * sala = malloc(sizeof(sala_t));
+    sala_t * sala;
     char * fname = get_fname(pelicula);
     int fd = open(fname, O_RDWR);
     if (fd==-1) {
@@ -36,7 +45,7 @@ sala_t * get_sala(char* pelicula) {
     flock_read(0, 0, fd); /* length 0, until EOF */
 
 /* cargar las ubicaciones disponibles para devolvérselas al cliente */
-    charge_sala(sala, fd);
+    charge_sala(&sala, fd);
 
 /* desbloquear la base */
     flock_unlock(0, 0, fd);
@@ -66,6 +75,7 @@ fixture_t * get_movies() {
     return ans;
 }
 
+/*NO SE USA*/
 void confirm_booking (booking_t * booking) {
     int fd;
     fd = open(booking->movie_name, O_RDWR);
@@ -84,24 +94,44 @@ void confirm_booking (booking_t * booking) {
     close(fd);
 }
 
-int buy_tickets(booking_t * b){
-	return 1;
+
+int buy_tickets(booking_t * booking){
+    
+    int start, end, fd;
+    start = get_position(booking->start[0],booking->start[1]);//fila y columna paso
+    end = get_position(booking->end[0],booking->end[1]);
+    
+    if(invalid_ticket_interval(start, end)||end>=MAX_PLACES||start<0)
+        return INVALID_INTERVAL;
+    fd = open_file(booking->movie_name);
+    flock_write(start, end, fd);
+
+    if(seats_occupied(start,end,fd)){
+        close_operation(start,end, fd);
+        return OCCUPIED_SEATS;
+    }
+    
+    get_seats(start, end, fd);
+    close_operation(start,end, fd);
+
+    return SUCCESFUL_OPERATION;
 }
-
-
 
 static char * get_fname (char * movie_name) {
     //FALTA EL RESTO DEL PATH!!!!
     char * path;
     char * p = "./database/";
+
     path = malloc((strlen(movie_name)+1)*sizeof(char));
-    memcpy(path,p,strlen(p));
+    memcpy(path,p,strlen(p)+1);
+
     int len = strlen(movie_name); //len: cant de letras del string sin incluir el '\0'
     char * fname = malloc((len+1)*sizeof(char));
+
     int i=0;
     for(;movie_name[i]!='\0';i++) {
         if(movie_name[i]==' ')
-            fname[i]='_';
+            fname[i]='-';
         else
             fname[i]=tolower(movie_name[i]);
     }
@@ -109,6 +139,7 @@ static char * get_fname (char * movie_name) {
     fname = strcat(path,fname);
     fname = strcat(fname,".txt");
     //free(path); tiene problemas ??????
+    printf("%s\n",fname);
     return fname;
 }
 
@@ -188,44 +219,29 @@ static void charge_titles(fixture_t * fixture, int fd){
 }
 
 //VER DE HACERLA DEVOLVER UN INT POR SI EL ARCHIVO ESTA MALFORMADO
-static void charge_sala(sala_t * sala, int fd) {
-    int index = 0;
+static void charge_sala(sala_t ** sala, int fd) {
+    *sala = malloc(sizeof(sala_t));
+    int ri = 0, ci=0;
     char c;
-    int status = ROW_STATUS;
-    sala->rows=0;
-    sala->cols=0;
-    while(read(fd,&c,1) != 0 && (status != END_STATUS)){ /* tendría que ser un get_int */
-        switch(status) {
-            case ROW_STATUS:
-                if (c == ' ') 
-                    status = COL_STATUS;
-                else
-                    sala->rows = sala->rows*10 + c - '0';
-                break;
-            case COL_STATUS:
-                if (c == ' ') {
-                    status = SITS_STATUS;
-                    sala->places=malloc(((sala->rows*sala->cols) +1)*sizeof(char));
-                } else
-                    sala->cols = sala->cols*10 + c - '0';
-                break;
-            case SITS_STATUS:
-                if(index < sala->rows * sala->cols) {
-                    sala->places[index ++] = c;
-                }
-                break;
+    (*sala)->rows=MAX_ROW;
+    (*sala)->cols=MAX_COL;
+    while(read(fd,&c,1) != 0 && ((ri+1)*(ci+1) <= MAX_PLACES) ){ /* tendría que ser un get_int */
+        (*sala)->places[ri][ci++] = c;
+        if(ci%MAX_COL==0){
+            ci=0;
+            ri++;
         }
+        
     }
-    sala->places[sala->rows*sala->cols]='\0';
 }
 
-static BOOL db_valid_range( int* start, int* end, sala_t * sala ) {
+static BOOL db_valid_range( int start[2], int end[2], sala_t * sala ) {
     int start_p = get_position(start[0], start[1]);
     int end_p = get_position(end[0], end[1]);
     int i;
     if(end_p >= start_p && end_p < MAX_PLACES) {
-        for(i=0; i < (end_p - start_p); i++) {
-            if (sala->places[start_p + i] == 1)
+        for(i=start_p; i <=end_p; i++) {
+            if (sala->places[i/MAX_COL][i%MAX_COL] == 1)
                 return FALSE;
         }
         return TRUE;
@@ -235,6 +251,54 @@ static BOOL db_valid_range( int* start, int* end, sala_t * sala ) {
 
 static BOOL check_valid_range(booking_t * booking, int fd) {
     sala_t * sala;
-    charge_sala(sala, fd);
+    charge_sala(&sala, fd);
     return db_valid_range(booking->start, booking->end, sala);
 }
+
+static void close_operation(int start, int end, int fd){
+    flock_unlock(start, end, fd);
+    close(fd);
+}
+
+static BOOL seats_occupied(int start, int end, int fd){
+
+    int i;
+    char seat;
+
+    for(i=start;i<=end;i++){
+
+        lseek(fd, i, SEEK_SET);
+        read(fd,&seat,1);
+        
+        if(seat==OCCUPIED)
+            return TRUE;
+    }
+
+    return FALSE;
+}
+
+static void get_seats(int start, int end, int fd){
+
+    int i;
+    
+    for(i=start;i<=end;i++){
+
+        lseek(fd, i, SEEK_SET);
+        write(fd,"1",1);
+
+    }
+
+}
+
+static int open_file(char* movie_name){
+
+    int fd;
+    char* root = get_fname(movie_name);
+    
+    if ((fd = open(root , O_RDWR)) == -1) {
+        perror("DB error.\n");
+        return -1;
+    }
+
+    return fd;
+} 

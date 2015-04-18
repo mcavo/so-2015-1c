@@ -2,8 +2,7 @@
 
 #include "../inc/client.h"
 #include <ctype.h>
-
-#define CLEAN_BUFFER    
+  
 
 /* print sala with diferent colors (selected, bought, available) */
 static void printSala (sala_t sala);
@@ -13,7 +12,7 @@ static void printSala (sala_t sala);
 static char* getMovieTitle();
 
 /* get positon of the a booking sit */
-static void getPosition(int* pos, char * msg);
+static void getPosition(int pos[2], char * msg);
 
 /* ask confirmation */
 static BOOL askConfirmation(sala_t * sala, booking_t * b);
@@ -33,35 +32,38 @@ int actionShowMovies() {
 int actionBuyTickets() {
 	char* title = getMovieTitle();
 	booking_t * booking = getBooking(title);
-	return buy_tickets(booking);
+    if(booking!=NULL)
+	   return buy_tickets(booking);
+    return -1;
 }
 
 void static printSala (sala_t sala) {
-    int i;
+    int ri,ci;
     char row='A';
     char* color;
     printf("\t");
-    for(i=0;i<sala.cols;i++) {
-        printf("%d ",i+1);
+    for(ci=0;ci<MAX_COL;ci++) {
+        printf("%d ",ci+1);
     }
     printf("\n");
-    for(i=0;i<sala.rows*sala.cols;i++) {
-        if(sala.places[i]=='1')
-            color=ANSI_COLOR_BOUGHT;
-        else {
-            if(sala.places[i]=='2')
-                color=ANSI_COLOR_SELECTED;
-            else
-                color=ANSI_COLOR_AVAILABLE;
+    for(ri=0;ri<MAX_ROW;ri++) {
+        printf("\n  %c\t",row+ri);
+        for(ci=0;ci<MAX_COL;ci++) {
+            if(sala.places[ri][ci]=='1')
+                color=ANSI_COLOR_BOUGHT;
+            else {
+                if(sala.places[ri][ci]=='2')
+                    color=ANSI_COLOR_SELECTED;
+                else
+                    color=ANSI_COLOR_AVAILABLE;
+            }
+
+            printf("%sO%s ",color,ANSI_COLOR_RESET);
         }
-        if (i%sala.cols == 0)
-            printf("\n%c\t",row++);
-        printf("%sO%s ",color,ANSI_COLOR_RESET);
     }
     printf("\n\n");
 }
 
-/****** VER DE COPIAR A UN UNICO CHAR * Y LIBERAR LA MEM DE TODA LA MATRIZ *****/
 static char* getMovieTitle(){
 	int index, i;
 	fixture_t * fixture = get_movies();
@@ -70,6 +72,7 @@ static char* getMovieTitle(){
 	do{
 		printf("%s\n", "Seleccione el número de película que desea ver");
 		scanf("%d", &index); 
+        fflush( stdin );
 	} while(!(0 < index && index <= fixture->count));
     rta =  fixture->titles[ index - 1];
     printf("%s\n",rta);
@@ -83,65 +86,67 @@ static char* getMovieTitle(){
     return rta;
 }
 
-static void getPosition(int* pos, char * msg) {
+static void getPosition(int pos[2], char * msg) {
     char crow;
     int col;
     printf("%s\n", msg);
     scanf("%s %d",&crow,&col);
-    pos[0]=((int) (tolower(crow)-'a')) - 1;
+    pos[0]=(int) (tolower(crow)-'a');
     pos[1]=col - 1;
 }
 
-static BOOL askConfirmation(sala_t * sala, booking_t * b) {
+static int askConfirmation(sala_t * sala, booking_t * b) {
     char c;
-    char* aux = malloc(sizeof(char) * (1+sala->rows*sala->cols));
+    char aux[MAX_ROW][MAX_COL];
 
     int start_p = get_position(b->start[0], b->start[1]);
     int end_p = get_position(b->end[0], b->end[1]);
 
-    aux=memcpy(aux,sala->places,sala->rows * sala->cols);
+    memcpy(aux,sala->places,MAX_PLACES);
 
-    markAsSelected(sala, start_p, end_p);
+    markAsSelected(start_p,end_p,sala);
 
     printSala(*sala); //este print no debería estar acá.
     // PREGUNTAR SI CONFIRMA
     //SPANGLISH ALERT! 
+    printf("%s\n", "Desea confirmar su reserva? (S/N)");
     do {
-        printf("%s\n", "Desea confirmar su reserva? (S/N)");
-        scanf("%c", &c);
-    } while(tolower(c)!='n'&&tolower(c)!='s'&&printf("\nPor favor ingrese una S o una N.")); 
+        printf("%s\n","Ingrese Q para cancelar la transaccion.");
+        fflush( stdin );
+        scanf("%s", &c);
+    } while(tolower(c)!='n'&&tolower(c)!='s'&& tolower(c)!='q'&&printf("Por favor ingrese una S o una N.\n")); 
     switch(tolower(c)){
     	case 's':
-    		return TRUE;
-    		break;
+    		return CONFIRM;
     	case 'n':
-    		sala->places = aux;
-    		return FALSE;
-    		break;
-    }
-    return FALSE; //hay que ver si esto está realmente bien. Si ingresa otra cosa
+    		memcpy(sala->places,aux,MAX_PLACES);
+    		return DONT_CONFIRM;
+        default:
+            return QUIT;
+    }; //hay que ver si esto está realmente bien. Si ingresa otra cosa
 }
 
 booking_t * getBooking(char* movie_name) {
 	sala_t* sala = get_sala (movie_name);
-	int* start = malloc(2*sizeof(int));
-	int* end = malloc(2*sizeof(int));
+	int start[2];
+	int end[2];
 	booking_t * b = calloc(1,sizeof(booking_t));
 	b->movie_name=movie_name;
-
+    int aux;
 	do {
         do {
             printSala(*sala);
+            //fflush( stdin );
             getPosition(start,"\nPlease choose the first position you want to buy\n");
             fflush( stdin );
             getPosition(end,"\nPlease choose the last position you want to buy\n");
-            printf("start: %d-%d\n",start[0],start[1]);
-            printf("end: %d-%d\n",end[0],end[1]);
+            fflush( stdin );
         } while ( !validRange(start, end, sala) ); //habría que ver si podemos dar un poco más de feedback para saber caul es el problema
-        b->start=start;
-        b->end=end;
-	} while ( askConfirmation(sala, b) );
-
+        memcpy(b->start,start,2*sizeof(int));
+        memcpy(b->end,end,2*sizeof(int));
+	} while ( (aux=askConfirmation(sala, b))==DONT_CONFIRM );
+    if(aux==QUIT)
+        b=NULL;
 	return b;
 }
 
