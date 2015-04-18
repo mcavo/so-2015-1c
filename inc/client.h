@@ -3,10 +3,14 @@
 #define	ANSI_COLOR_RESET	"\e[1;0m"	//resetea el color, sino en la consola se sigue imprimiendo en el color seteado
 #define	ANSI_COLOR_AVAILABLE "\e[1;0m"		//Default
 
+#define CANCELLED_OPERATION 1
+#define OUT_OF_MEMORY -4
 
 #include <stdio.h>
 #include <string.h>
 #include "actions.h"
 
-int actionShowMovies();
-int actionBuyTickets();
+void actionShowMovies();
+void actionBuyTickets();
+
+void printMsg (int code);
