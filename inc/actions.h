@@ -11,4 +11,5 @@
 
 void markAsSelected(int start, int end, sala_t * sala);
 
-BOOL validRange( int* start, int* end, sala_t * sala );
+BOOL validRange( int start[2], int end[2], sala_t * sala );
+BOOL validPosition(int pos[2]);

@@ -23,6 +23,7 @@
 
 #define OCCUPIED '1'
 
+#define DATABASE_ERROR -3
 #define INVALID_INTERVAL -2
 #define OCCUPIED_SEATS -1
 #define SUCCESFUL_OPERATION 0
@@ -49,7 +50,6 @@ typedef struct {
 	int count; /* cantidad de películas a mostrar*/
 }  fixture_t;
 
-void confirm_booking (booking_t * booking);
 fixture_t * get_movies();
 sala_t * get_sala(char* pelicula);
 int buy_tickets(booking_t * booking);
