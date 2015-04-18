@@ -6,13 +6,13 @@
 
 
 /* función repetida.. no se donde ponerla */
-BOOL validRange( int* start, int* end, sala_t * sala ) {
-    int start_p = get_position(start[0], start[1],sala->cols);
-    int end_p = get_position(end[0], end[1],sala->cols);
+BOOL validRange( int start[2], int end[2], sala_t * sala ) {
+    int start_p = get_position(start[0], start[1]);
+    int end_p = get_position(end[0], end[1]);
     int i;
-    if(end_p >= start_p && end_p < sala->rows*sala->cols) {
-        for(i=0; i < (end_p - start_p); i++) {
-            if (sala->places[start_p + i] == '1')
+    if(end_p >= start_p && end_p < MAX_PLACES) {
+        for(i=start_p; i <= end_p; i++) {
+            if (sala->places[i/MAX_COL][i%MAX_COL] == '1')
                 return FALSE;
         }
         return TRUE;
@@ -20,11 +20,11 @@ BOOL validRange( int* start, int* end, sala_t * sala ) {
     return FALSE;
 }
 
-void markAsSelected(sala_t * sala, int start, int end) {
+void markAsSelected(int start, int end, sala_t * sala) {
     int i;
-    for(i=0; i <= end ; i++) {
+    for(i=start; i <= end ; i++) {
         if(i >= start && i <= end) {
-            sala->places[i]='2';
+            sala->places[i/MAX_COL][i%MAX_COL]='2';
         }
     }
 }

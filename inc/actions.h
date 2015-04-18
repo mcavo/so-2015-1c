@@ -9,6 +9,6 @@
 #define TICKET_BOUGHT       1
 #define MAX_MOVIE_LENGHT    50
 
-void markAsSelected(sala_t * sala, int start, int end);
+void markAsSelected(int start, int end, sala_t * sala);
 
 BOOL validRange( int* start, int* end, sala_t * sala );
