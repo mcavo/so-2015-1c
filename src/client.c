@@ -2,6 +2,8 @@
 
 #include "../inc/client.h"
 #include <ctype.h>
+
+#define clean while(getchar()!='\n')
   
 
 /* print sala with diferent colors (selected, bought, available) */
@@ -59,22 +61,22 @@ void printMsg ( int code ) {
     char * RESET_ANSI_COLOR = "\e[1;0m";
     switch (code) {
         case INVALID_INTERVAL:
-            printf("%sError: Invalid interval.%s\n",ERROR_ANSI_COLOR,RESET_ANSI_COLOR);
+            printf("%s  Error: Invalid interval.%s\n",ERROR_ANSI_COLOR,RESET_ANSI_COLOR);
             break;
         case OCCUPIED_SEATS:
-            printf("%sError: Occupied seats.%s\n",ERROR_ANSI_COLOR,RESET_ANSI_COLOR);
+            printf("%s  Error: Occupied seats.%s\n",ERROR_ANSI_COLOR,RESET_ANSI_COLOR);
             break;
         case DATABASE_ERROR:
-            printf("%sError: Database general error.%s\n",ERROR_ANSI_COLOR,RESET_ANSI_COLOR);
+            printf("%s  Error: Database general error.%s\n",ERROR_ANSI_COLOR,RESET_ANSI_COLOR);
             break;
         case CANCELLED_OPERATION:
-            printf("%sCancelled operation.%s\n",SUCCESFULL_ANSI_COLOR,RESET_ANSI_COLOR);
+            printf("%s  Cancelled operation.%s\n",SUCCESFULL_ANSI_COLOR,RESET_ANSI_COLOR);
             break;
         case OUT_OF_MEMORY:
-            printf("%sError: Out of memory.%s\n",ERROR_ANSI_COLOR,RESET_ANSI_COLOR);
+            printf("%s  Error: Out of memory.%s\n",ERROR_ANSI_COLOR,RESET_ANSI_COLOR);
             break;
         case SUCCESFUL_OPERATION:
-            printf("%sSuccesful operation!%s\n",SUCCESFULL_ANSI_COLOR,RESET_ANSI_COLOR);
+            printf("%s  Succesful operation!%s\n",SUCCESFULL_ANSI_COLOR,RESET_ANSI_COLOR);
             break;
         default:
             break;
@@ -85,11 +87,14 @@ void static printSala (sala_t sala) {
     int ri,ci;
     char row='A';
     char* color;
-    printf("\t");
-    for(ci=0;ci<MAX_COL;ci++) {
-        printf("%d ",ci+1);
+    printf("\n\t");
+    for(ci=0;ci< (2*MAX_COL-7)/2 ; ci++) {
+        printf("%c",' ');
     }
-    printf("\n");
+    printf("%s\n\t","screen");
+    for(ci=0;ci<(2*MAX_COL-1);ci++){
+        printf("%c",'-');
+    }
     for(ri=0;ri<MAX_ROW;ri++) {
         printf("\n  %c\t",row+ri);
         for(ci=0;ci<MAX_COL;ci++) {
@@ -105,7 +110,11 @@ void static printSala (sala_t sala) {
             printf("%sO%s ",color,ANSI_COLOR_RESET);
         }
     }
-    printf("\n\n");
+    printf("\n\n\t");
+    for(ci=0;ci<MAX_COL;ci++) {
+        printf("%d ",ci+1);
+    }
+    printf("\n");
 }
 
 static char* getMovieTitle(int * code){
@@ -118,28 +127,27 @@ static char* getMovieTitle(int * code){
     char * rta;
     printMovieList(fixture);
 	do{
-		printf("%s\n", "Choose the number of movie you want to watch");
+		printf("  %s\n   ", "Please, select your choise:");
 		scanf("%d", &index); 
-        fflush( stdin );
+        clean;
 	} while(!(0 < index && index <= fixture->count));
     rta =  fixture->titles[ index - 1];
-    printf("%s\n",rta);
     for (i=0 ; i<fixture->count ; i++) {
         if(i != index -1)
             free(fixture->titles[i]);
     }
     free(fixture->titles);
     free(fixture);
-    printf("\n  You chose: %s\n",rta);
+    printf("\n  You chose: %s!\n",rta);
     return rta;
 }
 
 static void getPosition(int pos[2], char * msg) {
     char crow;
     int col;
-    printf("%s\n", msg);
-    fflush( stdin );
-    scanf("%s %d",&crow,&col);
+    printf("\n  %s\n   ", msg);
+    scanf("%c %d",&crow,&col);
+    clean;
     pos[0]=(int) (tolower(crow)-'a');
     pos[1]=col - 1;
 }
@@ -156,14 +164,15 @@ static int askConfirmation(sala_t * sala, booking_t * b) {
     markAsSelected(start_p,end_p,sala);
 
     printSala(*sala); 
-    printf("%s\n", "Desea confirmar su reserva? (S/N)");
+    printf("%s\n", "  Do you want to continue? (Y/N)");
     do {
-        printf("%s\n","Ingrese Q para cancelar la transaccion.");
-        fflush( stdin );
-        scanf("%s", &c);
-    } while(tolower(c)!='n'&&tolower(c)!='s'&& tolower(c)!='q'&&printf("Por favor ingrese una S o una N.\n")); 
+        printf("%s\n   ","  Insert Q to quit.");
+        scanf("%c", &c);
+        clean;
+        printf("\n");
+    } while(tolower(c)!='n'&&tolower(c)!='y'&& tolower(c)!='q'&&printf("Please insert Y,N or Q.\n")); 
     switch(tolower(c)){
-    	case 's':
+    	case 'y':
     		return CONFIRM;
     	case 'n':
     		memcpy(sala->places,aux,MAX_PLACES);
@@ -191,13 +200,11 @@ booking_t * getBooking(char* movie_name, int * code) {
 	do {
         do {
             printSala(*sala);
-            //fflush( stdin );
             do {
-                getPosition(start,"\n  Please choose the first position you want to buy. (Format: ROW-COL)\n");
-                //fflush( stdin );
+                getPosition(start,"Please choose the first position you want to buy. [ROW COL]");
             } while(!validPosition(start));
             do {
-                getPosition(end,"\n  Please choose the last position you want to buy. (Format: ROW-COL)\n");
+                getPosition(end,"Please choose the last position you want to buy. [ROW COL]");
                 
             } while(!validPosition(end));
         } while ( !validRange(start, end, sala)); //habría que ver si podemos dar un poco más de feedback para saber caul es el problema
@@ -219,7 +226,8 @@ static void printMovieList(fixture_t * fix) {
         printf("  -----------\n");
     
         for ( ; i < fix->count; i++) {
-            printf("%i- %s\n", i + 1, fix->titles[i]);
+            printf("  %i.%s\n", i + 1, fix->titles[i]);
         }
+        printf("\n");
     }
 }

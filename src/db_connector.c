@@ -61,7 +61,7 @@ fixture_t * get_movies() {
     fixture_t * ans;
     /* Abrir el archivo para lectura */
 
-    if ((fd = open("../database/fixture.txt", O_RDONLY)) == -1) {
+    if ((fd = open("./database/fixture.txt", O_RDONLY)) == -1) {
         return NULL;
     }
     if((ans = malloc(sizeof(fixture_t)))==NULL) {
