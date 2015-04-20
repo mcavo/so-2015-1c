@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <string.h>
 #include <sys/types.h>
 
 #define SERVER "server-data.txt"
@@ -14,6 +15,7 @@
 
 #define MAX_MESSAGES 5
 #define MESSAGE_SIZE LINE_LENGTH * 3 /* 3 is the message line number */
+typedef unsigned short uint16_t;
 
 typedef struct {	
 	pid_t from; /* client id. It will be used as the file name */

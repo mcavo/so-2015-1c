@@ -1,6 +1,6 @@
 
 #include "../../inc/client.h"
-
+#include "../../inc/filesig.h"
 
 #define ACTION_SHOW_FIXTURE 1
 #define ACTION_BUY_TICKETS  2
@@ -10,7 +10,30 @@
 
 
 
+void test_ipc(){
+	pid_t server_pid;
+	FILE *fd = fopen(SERVER, "r+");
+	fscanf(fd, "%d", &server_pid);
+	fclose(fd);
 
+	/* ipc creation */
+	ipc_t *ipc_l = ipc_listen(getpid());
+	ipc_t *ipc_c = ipc_connect(server_pid);
+
+	/* send message */
+	message_t *msg = (message_t *)malloc(sizeof(message_t));
+	msg -> content = "Hola";
+	msg -> length = 5;
+	msg -> from = getpid();
+	ipc_send(msg, ipc_c);
+	free(msg);
+
+	/* read message */
+	msg = (message_t *)malloc(sizeof(message_t));
+	msg = ipc_read(ipc_l);
+	printf("%s\n", msg->content);
+	free(msg);
+}
 
 void showCinemaTitle () {
     printf(" *****    ***********      **********\n\
@@ -69,6 +92,7 @@ int execRequest(/*ipc_t* ipc*/){
 int main() {
     showCinemaTitle();
     execRequest();
+	test_ipc();
     return 0;
 }
 
