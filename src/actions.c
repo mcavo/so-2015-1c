@@ -12,12 +12,12 @@ BOOL validRange( int start[2], int end[2], sala_t * sala ) {
     int end_p = get_position(end[0], end[1]);
     int i;
     if(end_p < start_p) {
-        printf("  Invalid interval: the last position must be grater or equal than the fist position. Please, try again.\n");
+        printf("\n  Invalid interval: the last position must be grater or equal than the fist position. Please, try again.\n");
         return FALSE;
     }
     for(i=start_p; i <= end_p; i++) {
         if (sala->places[i/MAX_COL][i%MAX_COL] == '1') {
-            printf("  One or several of the selected seats are occuppied. Please, try again. \n");
+            printf("\n  One or several of the selected seats are occuppied. Please, try again. \n");
             return FALSE;
         }
     }
