@@ -1,4 +1,4 @@
-C_FLAGS = -std=c99 -Wall -D_POSIX_C_SOURCE
+C_FLAGS = -std=c99 -Wall
 C_FILES = $(wildcard src/*.c)
 H_FILES = $(wildcard inc/*.h)
 
