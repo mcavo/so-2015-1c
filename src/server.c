@@ -12,13 +12,27 @@ wa<it()ing for them (again assuming the parent is not ignoring SIGCHLD) become c
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+
 int main(void)
 {
     pid_t pid;
     int rv;
-    command cmd;
+    message_t cmd;
 
     while(1){
+
+
+    struct my_msgbuf buf;
+    int msqid;
+    key_t key;
+    if ((key = ftok("kirk.c", 'B')) == -1) {
+        perror("ftok");
+        exit(1);
+    }
+    if ((msqid = msgget(key, 0644 | IPC_CREAT)) == -1) {
+        perror("msgget");
+        exit(1);
+    }
 
         receive_command(&cmd);
         switch(pid = fork()) {
@@ -46,4 +60,23 @@ int main(void)
     
     }
         return 0;
+}
+
+void worker(message_t* cmd){
+
+    cmd->content
+
+    switch(){
+
+        case ACTION_BUY_TICKETS:
+            rta = buy_tickets();
+
+    }
+
+    
+
+    id = ipc_open();
+
+    ipc_send(rta);
+
 }
