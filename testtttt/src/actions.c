@@ -69,7 +69,7 @@ void req_buy_tickets(ipc_t *ipc, uint16_t movie_id, ticket_t first, ticket_t las
 
 void res_buy_tickets(ipc_t *ipc, database_t *db, uint16_t sender, req_buy_tickets_t *req) {
 	res_buy_tickets_t res {
-		.end = db_buy_tickets(req->movie_id,req->first,req->first,req->last)
+		.end = db_buy_tickets(req->movie_id,req->first,req->last)
 	}
 	if(res.end<0)
 		res_error(ipc,sender,res.end);

@@ -10,6 +10,9 @@
 #define ANSI_C_OK_COLOR "\e[1;32m" //GREEN
 #define ANSI_C_RESET_COLOR "\e[1;0m"
 
+#define TICKET_AVAILABLE "\e[1;31m" //RED
+#define TICKET_BOUGHT "\e[1;32m" //GREEN
+
 typedef struct {
 	uint8_t type;
 } req_any_t;
