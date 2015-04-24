@@ -1,4 +1,4 @@
-#include "../../inc/front.h"
+#include "../inc/front.h"
 
 static void actionPrintCinema(ipc_t *ipc, uint16_t movie_id);
 static ticket_t getPosition (char row, int col);

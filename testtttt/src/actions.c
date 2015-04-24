@@ -18,9 +18,6 @@ void hand_error(res_error_t *err) {
 		case ERR_OCCUPIED_SEATS:
 			printf("%s  Error: Occupied seats.%s\n",ANSI_C_ERROR_COLOR,ANSI_C_RESET_COLOR);
 			break;
-		case ERR_NO_MORE_TICKETS:????
-			printf("%s  Error: No more tickets available.%s\n",ANSI_C_ERROR_COLOR,ANSI_C_RESET_COLOR);
-			break;
 		case ERR_INVALID_RANGE:
 			printf("%s  Error: Invalid range.%s\n",ANSI_C_ERROR_COLOR,ANSI_C_RESET_COLOR);
 			break;
@@ -69,7 +66,7 @@ void hand_fixture(res_fixture_t *res) {
 
 
 void req_buy_tickets(ipc_t *ipc, uint16_t movie_id, ticket_t first, ticket_t last) {
-	req_buy_tickets_t req {
+	req_buy_tickets_t req = {
 		.type = ACTION_BUY_TICKETS,
 		.movie_id = movie_id,
 		.first = first,
@@ -79,23 +76,23 @@ void req_buy_tickets(ipc_t *ipc, uint16_t movie_id, ticket_t first, ticket_t las
 }
 
 void res_buy_tickets(ipc_t *ipc, database_t *db, uint16_t sender, req_buy_tickets_t *req) {
-	res_buy_tickets_t res {
-		.end = db_buy_tickets(req->movie_id,req->first,req->last)
-	}
+	res_buy_tickets_t res = {
+		.end = db_buy_tickets(db,req->movie_id,req->first,req->last)
+	};
 	if(res.end<0)
 		res_error(ipc,sender,res.end);
 	else
 		ipc_send(ipc, sender, &res, sizeof(res));
 }
 
-void hand_buy_tickets(res_buy_ticket_t *res) {
+void hand_buy_tickets(res_buy_tickets_t *res) {
 	printf("  %sSuccesful operation!%s\n",ANSI_C_OK_COLOR,ANSI_C_RESET_COLOR);
 }
 
 /*
 
 void req_get_tickets(ipc_t *ipc, uint16_t movie_id) {
-	req_get_ticket_t req {
+	req_get_ticket_t req = {
 		.type = ACTION_GET_TICKETS,
 		.movie_id = movie_id
 	};

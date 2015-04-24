@@ -7,6 +7,6 @@
 #define FAIL 0
 #define SUCCESS 1
 
-int load_fixture(char *db_path, char *fixt_path)
+int load_fixture(char *db_path, char *fixt_path);
 
 #endif

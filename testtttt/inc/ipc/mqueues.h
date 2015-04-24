@@ -4,6 +4,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../ipc.h"
+
+typedef struct {
+	uint16_t sender;
+	uint16_t content_length;
+	char content[];
+} message_t;
 
 
 typedef struct {

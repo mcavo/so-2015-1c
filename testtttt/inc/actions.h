@@ -48,7 +48,7 @@ void res_fixture(ipc_t *ipc, database_t *db, uint16_t sender);
 void hand_fixture(res_fixture_t *res);
 
 typedef struct {
-	uint8_t  ;
+	uint8_t type;
 	uint16_t movie_id;
 	ticket_t first;
 	ticket_t last;
@@ -60,7 +60,7 @@ typedef struct {
 
 void req_buy_tickets(ipc_t *ipc, uint16_t movie_id, ticket_t first, ticket_t last);
 void res_buy_tickets(ipc_t *ipc, database_t *db, uint16_t sender, req_buy_tickets_t *req);
-void hand_buy_tickets(res_buy_ticket_t *res);
+void hand_buy_tickets(res_buy_tickets_t *res);
 /*
 typedef struct {
 	uint8_t type;

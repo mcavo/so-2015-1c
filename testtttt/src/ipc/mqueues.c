@@ -1,6 +1,10 @@
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
+#include "../../inc/ipc/mqueues.h"
+
+
+
 
 //de la estructura ipc_t SOLO ESTOY USANDO EL ID que sería lo que identifica a la message queue.
 //No se para que usar estas dos aca!!

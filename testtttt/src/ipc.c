@@ -1,5 +1,6 @@
 #include "../inc/ipc.h"
-
+#include "ipc/mqueues.c"
+/*
 #if defined(IPC_FILESIGN)
 	#include "ipc/filesign.c"
 
@@ -16,3 +17,5 @@
 	#include "ipc/fifo.c"
 
 #endif
+
+*/
