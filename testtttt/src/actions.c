@@ -1,5 +1,6 @@
 #include "../inc/actions.h"
 
+
 void res_error(ipc_t *ipc, uint16_t sender, int32_t code) {
 	res_error_t err = {
 		.type = ACTION_ERROR,
@@ -7,6 +8,7 @@ void res_error(ipc_t *ipc, uint16_t sender, int32_t code) {
 	};
 	ipc_send(ipc, sender, &err, sizeof(err));
 }
+
 
 void hand_error(res_error_t *err) {
 	switch (err->code) {
@@ -16,8 +18,17 @@ void hand_error(res_error_t *err) {
 		case ERR_OCCUPIED_SEATS:
 			printf("%s  Error: Occupied seats.%s\n",ANSI_C_ERROR_COLOR,ANSI_C_RESET_COLOR);
 			break;
-		case ERR_NO_MORE_TICKETS:
+		case ERR_NO_MORE_TICKETS:????
 			printf("%s  Error: No more tickets available.%s\n",ANSI_C_ERROR_COLOR,ANSI_C_RESET_COLOR);
+			break;
+		case ERR_INVALID_RANGE:
+			printf("%s  Error: Invalid range.%s\n",ANSI_C_ERROR_COLOR,ANSI_C_RESET_COLOR);
+			break;
+		case ERR_INVALID_TICKETS:
+			printf("%s  Error: Invalid tickets.%s\n",ANSI_C_ERROR_COLOR,ANSI_C_RESET_COLOR);
+			break;
+		case ERR_INVALID_COMMAND:
+			printf("%s  Error: Invalid command.%s\n",ANSI_C_ERROR_COLOR,ANSI_C_RESET_COLOR);
 			break;
 		default:
 			printf("%s  Error: Unexpected error %d.%s\n",ANSI_C_ERROR_COLOR,err->code,ANSI_C_RESET_COLOR);
@@ -81,7 +92,7 @@ void hand_buy_tickets(res_buy_ticket_t *res) {
 	printf("  %sSuccesful operation!%s\n",ANSI_C_OK_COLOR,ANSI_C_RESET_COLOR);
 }
 
-
+/*
 
 void req_get_tickets(ipc_t *ipc, uint16_t movie_id) {
 	req_get_ticket_t req {
@@ -115,3 +126,5 @@ void hand_get_tickets(res_get_ticket_t *res) {
 	}
 	printf("\n\n");
 }
+
+*/

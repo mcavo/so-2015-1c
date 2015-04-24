@@ -10,14 +10,14 @@ typedef struct {
 } message_t;
 
 
-#if defined(IPC_FILESIG)
-	#include "ipc/filesig.h"
+#if defined(IPC_FILESIGN)
+	#include "ipc/filesign.h"
 
 #elif defined(IPC_SOCKETS)
 	#include "ipc/sockets.h"
 
 #elif defined(IPC_SHMEM)
-	#include "ipc/shmem.h"
+	#include "ipc/shm.h"
 
 #elif defined(IPC_MQUEUES)
 	#include "ipc/mqueues.h"
@@ -26,6 +26,18 @@ typedef struct {
 	#include "ipc/fifo.h"
 
 #else
-	#error No IPC selected (use make IPC=[FILESIG|SOCKETS])
+	#error No IPC selected (use make IPC=[FILESIGN|SOCKETS])
+
+#endif
+
+ipc_t *ipc_listen(char *address);
+ipc_t *ipc_connect(char *address);
+
+ipc_t* ipc_open(char *root);
+void ipc_close(ipc_t *ipc);
+
+void ipc_send(ipc_t *ipc, uint16_t recipient, void *message, uint16_t size);
+message_t* ipc_receive(ipc_t *ipc);
+
 
 #endif

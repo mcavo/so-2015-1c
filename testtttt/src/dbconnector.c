@@ -61,13 +61,13 @@ static void db_unlock(database_t *db,uint16_t movie_id, int first, int last) {
 
 int db_buy_tickets (database_t *db, uint16_t movie_id, int first, int last) {
 	int i;
-	if (movie_i >= database->count)
+	if (movie_i >= db->count)
 		return ERR_NO_SUCH_MOVIE;
 	if (last>=MOVIE_MAX_PLACES || first<0)
 		return ERR_INVALID_TICKETS;
 	if (last < first)
 		return ERR_INVALID_RANGE;
-	movie_t *movie = &(database->movies[movie_i]);
+	movie_t *movie = &(db->movies[movie_i]);
 	db_wlock(db,movie_id,first,last);
 	for (i=first; i<=last; i++) {
 		if (movie->tickets[i] == 1) {
@@ -81,4 +81,5 @@ int db_buy_tickets (database_t *db, uint16_t movie_id, int first, int last) {
 	db_unlock(db,movie_id,first,last);
 	return 0;
 }
-ticket_t* db_get_tickets(database_t *database, uint16_t movie_id);
+
+//ticket_t* db_get_tickets(database_t *database, uint16_t movie_id);

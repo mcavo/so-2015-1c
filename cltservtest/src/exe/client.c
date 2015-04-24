@@ -78,17 +78,17 @@ int showMenu(){
 }
 
 void handle_response(ipc_t *ipc) {
-	message_t *msg = ipc_recv(ipc);
+	message_t *msg = ipc_receive(ipc);
 	res_any_t *res = (void*) &(msg->content);
 	switch (res->type) {
 		case ACTION_MOVIE_LIST:
-			han_movie_list((res_movie_list_t*) res);
+			hand_movie_list((res_movie_list_t*) res);
 			break;
 		case ACTION_BUY_TICKET:
-			han_buy_ticket((res_buy_ticket_t*) res);
+			hand_buy_ticket((res_buy_ticket_t*) res);
 			break;
 		case ACTION_ERROR:
-			han_error((res_error_t*) res);
+			hand_error((res_error_t*) res);
 			break;
 	}
 	free(msg);

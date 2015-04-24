@@ -1,6 +1,10 @@
 #ifndef __ACTIONS_H__
 #define __ACTIONS_H__
 
+#include "ipc.h"
+#include "dbconnector.h"
+#include <stdio.h>
+
 #define ACTION_SHOW_FIXTURE 1
 #define ACTION_BUY_TICKETS 2
 #define ACTION_GET_TICKETS 3
@@ -44,7 +48,7 @@ void res_fixture(ipc_t *ipc, database_t *db, uint16_t sender);
 void hand_fixture(res_fixture_t *res);
 
 typedef struct {
-	uint8_t type;
+	uint8_t  ;
 	uint16_t movie_id;
 	ticket_t first;
 	ticket_t last;
@@ -57,7 +61,7 @@ typedef struct {
 void req_buy_tickets(ipc_t *ipc, uint16_t movie_id, ticket_t first, ticket_t last);
 void res_buy_tickets(ipc_t *ipc, database_t *db, uint16_t sender, req_buy_tickets_t *req);
 void hand_buy_tickets(res_buy_ticket_t *res);
-
+/*
 typedef struct {
 	uint8_t type;
 	uint16_t movie_id;
@@ -71,5 +75,5 @@ typedef struct {
 void req_get_tickets(ipc_t *ipc, uint16_t movie_id);
 void res_get_tickets(ipc_t *ipc, database_t *db, uint16_t sender, req_get_ticket_t *req);
 void hand_get_tickets(res_get_ticket_t *res);
-
+*/
 #endif
