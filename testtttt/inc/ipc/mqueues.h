@@ -21,8 +21,8 @@ typedef struct {
 } ipc_t;
 
 
-ipc_t *ipc_listen(char *address);
-ipc_t *ipc_connect(char *address);
+ipc_t *ipc_listen(int pid);
+ipc_t *ipc_connect(int pid);
 
 ipc_t* ipc_open(char *root);
 void ipc_close(ipc_t *ipc);

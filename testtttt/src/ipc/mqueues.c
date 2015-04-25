@@ -71,7 +71,7 @@ void ipc_send(ipc_t *ipc, uint16_t recipient, void *message, uint16_t size){
 
 message_t* ipc_receive(ipc_t *ipc){
 
-		message_t message;
+	    message_t message;
 
 	    if (msgrcv(msqid, &message, sizeof(buf.mtext), 0, 0) == -1) {
             perror("msgrcv");
