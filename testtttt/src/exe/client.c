@@ -75,20 +75,3 @@ int showMenu(){
 
   return choice;
 }
-
-void handle_response(ipc_t *ipc) {
-	message_t *msg = ipc_receive(ipc);
-	res_any_t *res = (void*) &(msg->content);
-	switch (res->type) {
-		case ACTION_MOVIE_LIST:
-			hand_movie_list((res_movie_list_t*) res);
-			break;
-		case ACTION_BUY_TICKET:
-			hand_buy_ticket((res_buy_ticket_t*) res);
-			break;
-		case ACTION_ERROR:
-			hand_error((res_error_t*) res);
-			break;
-	}
-	free(msg);
-}

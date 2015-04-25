@@ -21,6 +21,7 @@
 #define ERR_INVALID_RANGE -3
 #define ERR_INVALID_TICKETS -4
 #define ERR_INVALID_COMMAND -5
+#define ERR_OUT_OF_MEMORY -6
 
 typedef uint8_t ticket_t;
 
@@ -43,6 +44,6 @@ database_t *db_open(char *path);
 void db_close(database_t *db);
 
 int db_buy_tickets (database_t *db, uint16_t movie_id, int first, int last);
-//ticket_t* db_get_tickets(database_t *db, uint16_t movie_id);
+int db_get_cinema(database_t *db, uint16_t movie_id, ticket_t ** t);
 
 #endif

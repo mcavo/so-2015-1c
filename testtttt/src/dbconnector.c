@@ -3,7 +3,6 @@
 static void db_rlock(database_t *database, uint16_t movie_id, int first, int last);
 static void db_wlock(database_t *database,uint16_t movie_id, int first, int last);
 static void db_unlock(database_t *database,uint16_t movie_id, int first, int last);
-static movie_t* db_find(database_t *database, char* name);
 
 void db_movie_init(movie_t* movie, char* name) {
 	strncpy(movie->name, name, MOVIE_NAME_LENGTH);
@@ -78,4 +77,20 @@ int db_buy_tickets (database_t *db, uint16_t movie_id, int first, int last) {
 	return 0;
 }
 
-//ticket_t* db_get_tickets(database_t *database, uint16_t movie_id);
+int db_get_tickets(database_t *db, uint16_t movie_id, ticket_t** t) {
+	int i;
+	if (movie_id >= db->count) {
+		*t = NULL;
+		return ERR_NO_SUCH_MOVIE;
+	}
+	*t = malloc (sizeof(ticket_t)*MOVIE_MAX_PLACES);
+	if (*t == NULL)
+		return ERR_OUT_OF_MEMORY;
+	movie_t *movie = &(db->movies[movie_id]);
+	db_rlock(db,movie_id,0,MOVIE_MAX_PLACES-1);
+	for (i=0; i<MOVIE_MAX_PLACES; i++) {
+		(*t)[i] = movie->tickets[i];
+	}
+	db_unlock(db,movie_id,0,MOVIE_MAX_PLACES-1);
+
+}

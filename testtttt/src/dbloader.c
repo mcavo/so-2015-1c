@@ -1,4 +1,5 @@
 #include "../inc/dbloader.h"
+#include <stdio.h>
 static movie_t load_movie(char *line);
 
 int load_fixture(char *db_path, char *fix_path) {
