@@ -3,12 +3,10 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <string.h>
 #include <sys/types.h>
 
-#define SERVER "../system_files/server-data.txt"
+#define SERVER "server-data.txt"
 #define LINE_LENGTH 250 /* including '/n' */
-#define SIZE_FILE 4 /* amount of messages allow */
 
 #define BOOL int
 #define TRUE 1
@@ -16,7 +14,6 @@
 
 #define MAX_MESSAGES 5
 #define MESSAGE_SIZE LINE_LENGTH * 3 /* 3 is the message line number */
-typedef unsigned short uint16_t;
 
 typedef struct {	
 	pid_t from; /* client id. It will be used as the file name */
@@ -30,10 +27,9 @@ typedef struct {
 } message_t;
 
 typedef struct {
-	size_t head; /* start at 1 */
-	size_t tail; /* start at 1 */
-	BOOL read;
-	BOOL write;
+	size_t read_count; /* start at 1 */
+	size_t write_count; /* start at 1 */
+	BOOL modified_order;
 } header_t;
 
 ipc_t *ipc_create(pid_t destination_process);
