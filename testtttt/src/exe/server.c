@@ -13,12 +13,13 @@ ipc_t *ipc;
 int main(void)
 {
     pid_t pid;
-    int rv;
-    command cmd;
+    message_t* cmd;
+
+    ipc= ipc_open("server.c"); 	
 
     while(1){
 
-        receive_command(&cmd);
+        cmd = ipc_receive(ipc);
         switch(pid = fork()) {
         case -1:
             perror("fork");  /* something went wrong */

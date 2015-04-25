@@ -14,15 +14,17 @@
 	enviarle comandos al server. Y el worker para abrir el ipc que el cliente creo para que le respondan ahi.
 	El ftok va a tener que usar LOS MISMOS PARAMETROS QUE CUANDO FUE CREADO EL IPC para poder conectarse con el.
 */
-ipc_t *ipc_connect(char *address){
+ipc_t *ipc_connect(int pid){
 
 	int msqid;
-    key_t key;
-    if ((key = ftok(address, 'A')) == -1) {  /* Misma key que se uso en el ipc_open. TIENE QUE COINCIDIR EL address y el 'A'*/
+//    key_t key;
+/* Misma key que se uso en el ipc_open. TIENE QUE COINCIDIR EL address y el 'A'*/
+/*    if ((key = ftok(address, 'A')) == -1) {  
         perror("ftok");
         exit(1);
-    }
-    if ((msqid = msgget(key, 0666)) == -1) { /* connect to the queue */
+   }*/
+
+    if ((msqid = msgget(pid, 0666)) == -1) { /* connect to the queue */
         perror("msgget");
         exit(1);
     }
@@ -30,18 +32,19 @@ ipc_t *ipc_connect(char *address){
 }
 
 //Lo llama el server por ejemplo, para crear un unico canal por donde recibe las peticiones de los clientes.
-ipc_t* ipc_open(char *root){
+ipc_t* ipc_open(int pid){
 
-	key_t key;
+	//por si no compila el msgget con pid: key_t key = (key_t)pid;
 	int msqid;
     ipc_t msq;
 
     //ftok("mqueues.c", 'A')
-    if ((key = ftok(root, 'A')) == -1) {
+/*    if ((key = ftok(root, 'A')) == -1) {
         perror("ftok");
         exit(1);
-    }
-    if ((msqid = msgget(key, 0666 | IPC_CREAT)) == -1) {
+    }*/
+
+    if ((msqid = msgget(pid, 0666 | IPC_CREAT)) == -1) {
         perror("msgget");
         exit(1);
     }

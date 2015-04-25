@@ -62,9 +62,6 @@ void hand_fixture(res_fixture_t *res) {
 	printf("\n");
 }
 
-
-
-
 void req_buy_tickets(ipc_t *ipc, uint16_t movie_id, ticket_t first, ticket_t last) {
 	req_buy_tickets_t req = {
 		.type = ACTION_BUY_TICKETS,
