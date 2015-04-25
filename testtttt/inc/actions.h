@@ -7,7 +7,7 @@
 
 #define ACTION_SHOW_FIXTURE 1
 #define ACTION_BUY_TICKETS 2
-#define ACTION_GET_TICKETS 3
+#define ACTION_PRINT_CINEMA 3
 #define ACTION_ERROR 59
 
 #define ANSI_C_ERROR_COLOR "\e[1;31m" //RED
@@ -55,25 +55,26 @@ typedef struct {
 } req_buy_tickets_t;
 
 typedef struct {
+	uint8_t type;
 	uint8_t end;
 } res_buy_tickets_t;
 
 void req_buy_tickets(ipc_t *ipc, uint16_t movie_id, ticket_t first, ticket_t last);
 void res_buy_tickets(ipc_t *ipc, database_t *db, uint16_t sender, req_buy_tickets_t *req);
 void hand_buy_tickets(res_buy_tickets_t *res);
-/*
+
 typedef struct {
 	uint8_t type;
 	uint16_t movie_id;
-} req_get_tickets_t;
+} req_print_cinema_t;
 
 typedef struct {
 	uint8_t type;
 	uint8_t tickets[];
-} res_get_tickets_t;
+} res_print_cinema_t;
 
-void req_get_tickets(ipc_t *ipc, uint16_t movie_id);
-void res_get_tickets(ipc_t *ipc, database_t *db, uint16_t sender, req_get_ticket_t *req);
-void hand_get_tickets(res_get_ticket_t *res);
-*/
+void req_print_cinema(ipc_t *ipc, uint16_t movie_id);
+void res_print_cinema(ipc_t *ipc, database_t *db, uint16_t sender, req_print_cinema_t *req);
+void hand_print_cinema(res_print_cinema_t *res);
+
 #endif

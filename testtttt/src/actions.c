@@ -77,6 +77,7 @@ void req_buy_tickets(ipc_t *ipc, uint16_t movie_id, ticket_t first, ticket_t las
 
 void res_buy_tickets(ipc_t *ipc, database_t *db, uint16_t sender, req_buy_tickets_t *req) {
 	res_buy_tickets_t res = {
+		.type = ACTION_BUY_TICKETS,
 		.end = db_buy_tickets(db,req->movie_id,req->first,req->last)
 	};
 	if(res.end<0)
@@ -89,22 +90,32 @@ void hand_buy_tickets(res_buy_tickets_t *res) {
 	printf("  %sSuccesful operation!%s\n",ANSI_C_OK_COLOR,ANSI_C_RESET_COLOR);
 }
 
-/*
 
-void req_get_tickets(ipc_t *ipc, uint16_t movie_id) {
-	req_get_ticket_t req = {
-		.type = ACTION_GET_TICKETS,
+
+void req_print_cinema(ipc_t *ipc, uint16_t movie_id) {
+	req_print_cinema_t req = {
+		.type = ACTION_PRINT_CINEMA,
 		.movie_id = movie_id
 	};
 	ipc_send(ipc, ipc->server_id, &req, sizeof(req));
 }
 
-TODO
-void res_get_tickets(ipc_t *ipc, database_t *db, uint16_t sender, req_get_ticket_t *req) {
-
+void res_print_cinema(ipc_t *ipc, database_t *db, uint16_t sender, req_print_cinema_t *req) {
+	ticket_t * cinema;
+	int i = db_get_cinema(db,req->movie_id,&cinema);
+	if(cinema == NULL)
+		res_error(ipc,sender,i);
+	else {
+		res_print_cinema_t res;
+		res.type = ACTION_BUY_TICKETS,
+		memcpy(res.tickets,cinema,MOVIE_MAX_PLACES);
+		free(cinema);
+		ipc_send(ipc, ipc->server_id, &res, sizeof(res));
+	}
 }
 
-void hand_get_tickets(res_get_ticket_t *res) {
+
+void hand_print_cinema(res_print_cinema_t *res) {
 	int i;
 	char row = 'A';
 	char * color;
@@ -124,4 +135,4 @@ void hand_get_tickets(res_get_ticket_t *res) {
 	printf("\n\n");
 }
 
-*/
+
