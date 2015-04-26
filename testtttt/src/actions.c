@@ -37,13 +37,14 @@ void hand_error(res_error_t *err) {
 void req_fixture(ipc_t *ipc) {
 	req_fixture_t req = {
 		.type = ACTION_SHOW_FIXTURE
+
 	};
-	printf("direccion del req original req_fixture: %d\n", &req);
+	printf("direccion del req original req_fixture: %d\n", (int)&req);
 	message_t msg;
 	msg.sender = getpid();
 	printf("msg.serder en req_fixture: %d\n",msg.sender);
-	msg.content=&req;
-	printf("direccion msg content en req_fixture: %d\n",msg.content);
+	memcpy(msg.content,&req,sizeof(req));
+	printf("direccion msg content en req_fixture: %d\n",(int)msg.content);
 	printf("msg.content en req_fixture: %d\n",((req_fixture_t*)(msg.content))->type);
 	ipc_send(ipc, &msg, sizeof(msg));
 }

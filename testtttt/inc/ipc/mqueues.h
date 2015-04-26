@@ -12,7 +12,7 @@
 
 typedef struct {
 	uint16_t sender;
-	char *content;
+	char content[];
 } message_t;
 
 
