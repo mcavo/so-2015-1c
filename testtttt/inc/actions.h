@@ -29,6 +29,7 @@ void hand_error(res_error_t *err);
 
 typedef struct {
 	uint8_t type;
+	uint32_t size;
 } req_fixture_t;
 
 typedef struct {
@@ -44,6 +45,7 @@ void hand_fixture(res_fixture_t *res);
 
 typedef struct {
 	uint8_t type;
+	uint32_t size;
 	uint16_t movie_id;
 	ticket_t first;
 	ticket_t last;
@@ -60,6 +62,7 @@ void hand_buy_tickets(res_buy_tickets_t *res);
 
 typedef struct {
 	uint8_t type;
+	uint32_t size;	
 	uint16_t movie_id;
 } req_print_cinema_t;
 
