@@ -1,0 +1,2 @@
+./bin/reset db fixture.txt
+./bin/server

@@ -28,10 +28,13 @@ int main(int argc, char** argv) {
 		ipc_res = ipc_open(getpid());
 
 		switch (action) {
-			case ACTION_SHOW_FIXTURE:
+			case ACTION_SHOW_FIXTURE:				
 				actionShowFixture(ipc, ipc_res);
 				break;
 			case ACTION_BUY_TICKETS:
+				actionShowFixture(ipc, ipc_res);
+				ipc_close(ipc_res);
+				ipc_res = ipc_open(getpid());
 				actionBuyTickets(ipc, ipc_res);
 				break;
 			default:

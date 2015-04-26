@@ -38,9 +38,14 @@ void req_fixture(ipc_t *ipc) {
 	req_fixture_t req = {
 		.type = ACTION_SHOW_FIXTURE
 	};
+	printf("direccion del req original req_fixture: %d\n", &req);
 	message_t msg;
 	msg.sender = getpid();
-	memcpy(msg.content,&req,sizeof(req));
+	//msg.content = malloc(sizeof(req));
+	//memcpy(msg.content,&req,sizeof(req_fixture_t*));
+	msg.content=&req;
+//	int type=((req*)msg.content)->type;
+	printf("msg content en req_fixture: %d\n",msg.content);
 	
 	ipc_send(ipc, &msg, sizeof(msg));
 }

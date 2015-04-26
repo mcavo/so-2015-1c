@@ -4,19 +4,26 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
+#include <errno.h>
 #include "../ipc.h"
 
 #define MSG_SIZE 1024*10
 
 typedef struct {
 	uint16_t sender;
-	char content[];
+	char *content;
 } message_t;
 
 
 typedef struct {
-	uint16_t id;
+	int id;
 } ipc_t;
+
+typedef struct{
+	long mtype;
+	message_t mtext;
+}buf_t;
 
 
 ipc_t *ipc_listen(int pid);

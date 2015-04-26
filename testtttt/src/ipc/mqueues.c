@@ -11,6 +11,7 @@ ipc_t *ipc_connect(int pid){
 
     if ((msqid = msgget(pid, 0666)) == -1) { /* connect to the queue */
         perror("msgget");
+		fprintf(stderr, "Ocurrio el error %s en ipc_connect\n",strerror(errno));		
 	return NULL;
     }
 	
@@ -28,7 +29,8 @@ ipc_t* ipc_open(int pid){
 
     if ((msqid = msgget(pid, 0666 | IPC_CREAT)) == -1) {
         perror("msgget");
-	return NULL;
+		fprintf(stderr, "Ocurrio el error %s en ipc_open\n",strerror(errno));		
+		return NULL;
     }
 
     msq->id = msqid;
@@ -40,6 +42,7 @@ void ipc_close(ipc_t *ipc){
 
     if (msgctl(ipc->id, IPC_RMID, NULL) == -1) {
         perror("msgctl");
+		fprintf(stderr, "Ocurrio el error %s en ipc_close\n",strerror(errno));		
     }
     free(ipc);
 }
@@ -47,19 +50,35 @@ void ipc_close(ipc_t *ipc){
 
 void ipc_send(ipc_t *ipc, message_t *message, int size){
     
-    if (msgsnd(ipc->id, message, size, 0) == -1)
-    	perror("msgsnd");
+	buf_t buf;
+	
+	buf.mtype=0;
+	memcpy(&(buf.mtext), message, sizeof(message));
+		printf("ipc_id en ipc_send: %d\n",ipc->id);	   
+	if (msgsnd(ipc->id, message, size, 0) == -1)
+    {
+		perror("msgsnd");
+		fprintf(stderr, "Ocurrio el error %s en ipc_send\n",strerror(errno));		
+		printf("Error: msgsnd\n");
+	}
+
+		printf("hizo el send en ipc_send\n\n");	   
+	
 }
 
 message_t* ipc_receive(ipc_t *ipc){
 
-	    message_t * message = malloc(MSG_SIZE);
+		char buf[MSG_SIZE];
+		int nbytes;
 
-	    if (msgrcv(ipc->id, message, MSG_SIZE, 0, 0) == -1) {
+	    if ((nbytes = msgrcv(ipc->id, &buf, MSG_SIZE, 0, 0)) == -1) {
             perror("msgrcv");
+			fprintf(stderr, "Ocurrio el error %s en ipc_receive\n",strerror(errno));				
             exit(1);
         }
+		
+		message_t * msg = malloc(nbytes);
+		memcpy(msg, buf + sizeof(long), nbytes);
 
-        return message;
-
+        return msg;
 }

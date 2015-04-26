@@ -11,7 +11,7 @@ static void worker(message_t * msg);
 static uint8_t command_interpreter(char* msg);
 
 database_t *db;
-ipc_t *ipc;
+
 
 void save_server_pid(int server_pid){
    FILE * fp;
@@ -28,12 +28,15 @@ int main(void)
     pid_t pid, server_pid;
     message_t* cmd;
     server_pid = getpid();   
-   
+	ipc_t *ipc;   
+
     //Dejamos en un archivo el pid del servidor para que los clientes lo tomen y se comuniquen. 
     save_server_pid(server_pid);
- 
+
     //Creamos el ipc unico, cuyo id es el pid del servidor.
-    ipc= ipc_open(server_pid); 	
+    ipc = ipc_open(server_pid); 	
+	
+	printf("ipc_opened: %d ipc_id: %d\n", server_pid,ipc->id); 
 
     while(1){
 
@@ -49,7 +52,8 @@ int main(void)
         El padre puede pisar la estructura command porq el hijo al hacer fork tiene su propia copia de todas las variables. */
             switch(fork()){
                 case 0:
-                    worker(cmd);//muere solo
+					worker(cmd);//muere solo
+
 
                 case -1:
                     perror("fork2");
@@ -66,7 +70,8 @@ int main(void)
 }
 
 static void worker(message_t * msg) {
-    uint8_t command = command_interpreter(msg->content);
+	printf("llego al worker!\n");    
+	uint8_t command = command_interpreter(msg->content);
     ipc_t* ipc;
     message_t res;
     char * r;

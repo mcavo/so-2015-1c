@@ -13,7 +13,6 @@ void actionShowFixture(ipc_t *ipc, ipc_t *ipc_res) {
 
 void actionBuyTickets(ipc_t *ipc, ipc_t *ipc_res) {
 	uint16_t movie_id;
-	actionShowFixture(ipc, ipc_res);
 	printf("  Select your choise, please: [NUM]\n");
 	fflush(stdin);
 	scanf("%d",(int*)&movie_id);
