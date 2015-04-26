@@ -50,14 +50,13 @@ void ipc_close(ipc_t *ipc){
 
 void ipc_send(ipc_t *ipc, message_t *message, int s){
     
-	buf_t buf;
 	int size = sizeof(uint16_t)+*((uint32_t*)(message->content+sizeof(uint8_t)));
-	buf.mtype=0;
-	buf.mtext=malloc(size);
-	memcpy(&(buf.mtext), message, size);
+	buf_t* buf=malloc(sizeof(long)+size;
+	buf->mtype=0;
+	memcpy(&(buf->mtext), message, size);
 	printf("ipc_id en ipc_send: %d\n",ipc->id);
 
-	if (msgsnd(ipc->id, &buf, size, 0) == -1)
+	if (msgsnd(ipc->id, buf, size, 0) == -1)
     {
 		perror("msgsnd");
 		fprintf(stderr, "Ocurrio el error %s en ipc_send\n",strerror(errno));		
@@ -65,7 +64,7 @@ void ipc_send(ipc_t *ipc, message_t *message, int s){
 	}
 
 		printf("hizo el send en ipc_send\n\n");	   
-	
+	free(buf);
 }
 
 message_t* ipc_receive(ipc_t *ipc){
