@@ -22,10 +22,12 @@ int main(int argc, char** argv) {
 
 	ipc_t *ipc = ipc_connect(server_pid);
 	ipc_t *ipc_res;
+	int pid=getpid();
 
 	while ( (action = showMenu())!=ACTION_EXIT ) {
 
-		ipc_res = ipc_open(getpid());
+		ipc_res = ipc_open(pid);
+		printf("Cliente abre ok ipc_res id: %d, pid_cliente: %d\n",ipc_res->id ,pid);  
 
 		switch (action) {
 			case ACTION_SHOW_FIXTURE:				

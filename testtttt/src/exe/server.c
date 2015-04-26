@@ -36,7 +36,7 @@ int main(void)
     //Creamos el ipc unico, cuyo id es el pid del servidor.
     ipc = ipc_open(server_pid); 	
 	
-	printf("ipc_opened: %d ipc_id: %d\n", server_pid,ipc->id); 
+	printf("server_pid: %d ipc_id: %d\n", server_pid,ipc->id); 
 
     while(1){
 
@@ -71,6 +71,8 @@ int main(void)
 
 static void worker(message_t * msg) {
 	printf("llego al worker!\n");    
+	printf("msg.sender en worker: %d\n",msg->sender);
+	printf("msg.content en server: %d\n",((req_fixture_t*)(msg->content))->type);
 	uint8_t command = command_interpreter(msg->content);
     ipc_t* ipc;
     message_t res;
@@ -95,8 +97,9 @@ static void worker(message_t * msg) {
             break;
     }
 	//Creamos un ipc nuevo entre el worker y el cliente, cuyo id es el pid del cliente guardado en el msg.
+  	
 	ipc = ipc_connect(msg->sender);
-	
+	printf("Conecto worker con ipc_res id: %d\n",ipc->id);  
 	
 	res.sender=getpid();
     ipc_send(ipc, &res, sizeof(res));

@@ -1,1 +1,0 @@
-linea 43 del actions.c hay problema con la copia para mi ahi tira el stack overflow
