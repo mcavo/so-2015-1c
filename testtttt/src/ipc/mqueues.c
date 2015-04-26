@@ -48,9 +48,8 @@ void ipc_close(ipc_t *ipc){
 }
 
 
-void ipc_send(ipc_t *ipc, message_t *message, int s){
+void ipc_send(ipc_t *ipc, message_t *message, int size){
     
-	int size = sizeof(uint16_t)+*((uint32_t*)((message->content)+sizeof(uint8_t)));
 	printf("size= %d\n", size);
 	buf_t* buf=malloc(sizeof(long)+size);
 	buf->mtype=0;

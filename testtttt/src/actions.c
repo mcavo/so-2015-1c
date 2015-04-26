@@ -37,8 +37,7 @@ void hand_error(res_error_t *err) {
 void req_fixture(ipc_t *ipc) {
 	req_fixture_t req = {
 		.type = ACTION_SHOW_FIXTURE,
-		.size = sizeof(req_fixture_t)
-
+		
 	};
 	printf("direccion del req original req_fixture: %d\n", (int)&req);
 	message_t msg;
@@ -47,7 +46,7 @@ void req_fixture(ipc_t *ipc) {
 	memcpy(msg.content,&req,sizeof(req));
 	printf("direccion msg content en req_fixture: %d\n",(int)msg.content);
 	printf("msg.content en req_fixture: %d\n",((req_fixture_t*)(msg.content))->type);
-	ipc_send(ipc, &msg, sizeof(msg));
+	ipc_send(ipc, &msg, sizeof(msg.sender)+sizeof(req_fixture_t));
 }
 
 res_fixture_t * res_fixture(database_t *db){
@@ -73,7 +72,6 @@ void hand_fixture(res_fixture_t *res) {
 void req_buy_tickets(ipc_t *ipc, uint16_t movie_id, ticket_t first, ticket_t last) {
 	req_buy_tickets_t req = {
 		.type = ACTION_BUY_TICKETS,
-		.size = sizeof(req_buy_tickets_t),
 		.movie_id = movie_id,
 		.first = first,
 		.last = last
@@ -82,7 +80,7 @@ void req_buy_tickets(ipc_t *ipc, uint16_t movie_id, ticket_t first, ticket_t las
 	message_t msg;
 	msg.sender = getpid();
 	memcpy(msg.content,&req,sizeof(req));
-	ipc_send(ipc, &msg, sizeof(msg));
+	ipc_send(ipc, &msg, sizeof(msg.sender)+sizeof(req_buy_tickets_t));
 }
 
 res_buy_tickets_t * res_buy_tickets(database_t *db, req_buy_tickets_t *req) {
@@ -106,7 +104,6 @@ void hand_buy_tickets(res_buy_tickets_t *res) {
 void req_print_cinema(ipc_t *ipc, uint16_t movie_id) {
 	req_print_cinema_t req = {
 		.type = ACTION_PRINT_CINEMA,
-		.size = sizeof(req_print_cinema_t),
 		.movie_id = movie_id
 	};
 	
@@ -114,7 +111,7 @@ void req_print_cinema(ipc_t *ipc, uint16_t movie_id) {
 	msg.sender = getpid();
 	memcpy(msg.content,&req,sizeof(req));
 	
-	ipc_send(ipc, &msg, sizeof(msg));
+	ipc_send(ipc, &msg, sizeof(msg.sender)+sizeof(req_fixture_t));
 
 }
 
