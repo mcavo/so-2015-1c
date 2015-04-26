@@ -1,2 +1,4 @@
 el id del cliente que le llega al worker esta mal. no coincide con el q guarda el cliente
 Es probable que el contenido del msg no este llegando bien
+
+EL PROBLEMA ESTA EN EL MSG RECEIVE y/o en el MSG SEND

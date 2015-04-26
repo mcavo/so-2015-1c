@@ -48,18 +48,20 @@ void ipc_close(ipc_t *ipc){
 }
 
 
-void ipc_send(ipc_t *ipc, message_t *message, int size){
+void ipc_send(ipc_t *ipc, message_t *message, int s){
     
 	buf_t buf;
 	
 	buf.mtype=0;
 	memcpy(&(buf.mtext), message, sizeof(message));
-		printf("ipc_id en ipc_send: %d\n",ipc->id);	   
-	if (msgsnd(ipc->id, message, size, 0) == -1)
+	printf("ipc_id en ipc_send: %d\n",ipc->id);
+	 int size = sizeof(buf) - sizeof(long);  
+
+	if (msgsnd(ipc->id, &buf, size, 0) == -1)
     {
 		perror("msgsnd");
 		fprintf(stderr, "Ocurrio el error %s en ipc_send\n",strerror(errno));		
-		printf("Error: msgsnd\n");
+		exit(1);
 	}
 
 		printf("hizo el send en ipc_send\n\n");	   
