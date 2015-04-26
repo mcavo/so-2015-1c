@@ -23,7 +23,7 @@ typedef struct {
 ipc_t *ipc_listen(int pid);
 ipc_t *ipc_connect(int pid);
 
-ipc_t* ipc_open(char *root);
+ipc_t* ipc_open(int pid);
 void ipc_close(ipc_t *ipc);
 
 void ipc_send(ipc_t *ipc, void *message);
