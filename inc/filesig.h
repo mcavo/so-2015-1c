@@ -18,6 +18,8 @@
 #define TRUE 1
 #define FALSE 0
 
+#define ERROR -1
+
 #define MAX_MESSAGES 5
 #define MESSAGE_SIZE LINE_LENGTH * 3 /* 3 is the message line number */
 typedef unsigned short uint16_t;

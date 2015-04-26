@@ -39,13 +39,29 @@ void test_ipc(){
   printf("%s\n", msg -> content);
 	ipc_send(msg, ipc_c);
 	free(msg);
-
-	/* read message */
-	msg = (message_t *)malloc(sizeof(message_t));
+/*	
+  printf("sending a new message\n");
+  msg = (message_t *)malloc(sizeof(message_t));
+  msg -> content = "Hola de nuevo";
+  msg -> length = 14;
+  msg -> from = getpid();
+  printf("%s\n", msg -> content);
+  ipc_send(msg, ipc_c);
+  free(msg);
+*/
+    /* read message 1 message */
+  msg = (message_t *)malloc(sizeof(message_t));
   printf("voy a leer la respuesta\n");
-	msg = ipc_read(ipc_l);
-	printf("%s\n", msg->content);
-	free(msg);
+  msg = ipc_read(ipc_l);
+  printf("%s\n", msg->content);
+  free(msg);
+
+      /* read message 2 message */
+  /*msg = (message_t *)malloc(sizeof(message_t));
+  printf("voy a leer la respuesta\n");
+  msg = ipc_read(ipc_l);
+  printf("%s\n", msg->content);
+  free(msg);*/
 }
 
 void showCinemaTitle () {

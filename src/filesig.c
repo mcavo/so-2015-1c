@@ -1,20 +1,22 @@
 #include "../inc/filesig.h"
 
-static BOOL flock_creat(FILE *fd, int type);
-static BOOL flock_write(FILE *fd);
-static BOOL flock_unlock(FILE *fd);
+static BOOL flock_creat(int fd, int type);
+static BOOL flock_write(int fd);
+static BOOL flock_unlock(int fd);
 
-static FILE *open_file(ipc_t *ipc);
-static void close_file(FILE *fd);
-static void read_message(message_t *msg, FILE *fd);
-static void write_message(message_t *msg, FILE *fd);
+static int open_file(ipc_t *ipc);
+static void close_file(int fd);
+static void read_message(message_t *msg, int fd);
+static void write_message(message_t *msg, int fd);
 static void itoa ( int value, char * str );
-static void write_line(char *msg, FILE *fd);
-static header_t *read_header(FILE *fd);
+static void write_line(char *msg, int fd);
+static header_t *read_header(int fd);
 static void parse_header(char *str, header_t *header);
 static void reverse(char s[], int size);
 static char *get_fname(ipc_t *ipc);
-static void write_header(header_t *header, FILE *fd);
+static void write_header(header_t *header, int fd);
+static int get_string(char *buffer, int length, int fd);
+static int put_string(char *str, int fd);
 
 static void signal_handler(int signum) {
 	printf("%s\n", "wake up"); //TODO: only testing
@@ -63,16 +65,16 @@ void ipc_close(ipc_t *ipc) {
 
 /* send the message to the ipc destination */
 void ipc_send(message_t *msg, ipc_t *ipc) {
-	/* charge in fd the open file */
 	printf("sending message\n");
 	
-	FILE *fd = open_file(ipc);
+	int fd = open_file(ipc);
 
 	write_message(msg, fd);
 
 	close_file(fd);
 
 	/* send signal to weak up de destination process */
+	printf("Voy a mandar la señal\n");
 	kill(ipc -> to, SIGUSR1);
 } 
 
@@ -80,8 +82,8 @@ void ipc_send(message_t *msg, ipc_t *ipc) {
 message_t *ipc_read(ipc_t *ipc) {
 	message_t *msg = (message_t*) malloc(sizeof(message_t));
 	printf("reading message\n");
-	FILE *fd = open_file(ipc);
-
+	int fd = open_file(ipc);
+	//printf("%d\n", fd);
 	read_message(msg, fd); 
 
 	close_file(fd);
@@ -89,13 +91,13 @@ message_t *ipc_read(ipc_t *ipc) {
 	return msg;
 }
 
-static FILE *open_file(ipc_t *ipc) {
+static int open_file(ipc_t *ipc) {
 	printf("open file\n");
 	char* fname = get_fname(ipc);
-	FILE *fd = fopen(fname, "a+"); /* a+ append at the end of the file */
-	if (fd == NULL) {
+	int fd = open(fname, O_RDWR | O_CREAT, 0666); 
+	if (fd == ERROR) {
 		printf("hubo un error\n");
-		return NULL; //TODO: cómo manejar los errores en ipc??
+		return ERROR; //TODO: cómo manejar los errores en ipc??
 	}
 	while(!flock_write(fd))
 		;
@@ -103,12 +105,12 @@ static FILE *open_file(ipc_t *ipc) {
 	return fd;
 }
 
-static void close_file(FILE *fd) {	
+static void close_file(int fd) {	
 	flock_unlock(fd);
-	fclose(fd);
+	close(fd);
 }
 //TODO: no hay que liberar el fl??
-static BOOL flock_creat(FILE *fd, int type) {
+static BOOL flock_creat(int fd, int type) {
     struct flock fl;
 
     fl.l_type = type;
@@ -116,104 +118,119 @@ static BOOL flock_creat(FILE *fd, int type) {
     fl.l_start = 0;
     fl.l_len = 0;
     fl.l_pid = getpid();
-    if (fcntl(fileno(fd), F_SETLKW, &fl) == -1) {
+    if (fcntl(fd , F_SETLKW, &fl) == -1) {
         return FALSE;
     }
     return TRUE;
 }
 
-static BOOL flock_write(FILE *fd) {
+static BOOL flock_write(int fd) {
 	printf("intentando bloquear el archivo\n");
     return flock_creat(fd, F_WRLCK);
 }
 
-static BOOL flock_unlock(FILE *fd) {
+static BOOL flock_unlock(int fd) {
     return flock_creat(fd, F_UNLCK);
 }
 
-static void read_message(message_t *msg, FILE *fd) {
+static void read_message(message_t *msg, int fd) {
 	printf("reading...\n");
 	char * aux;
 	int head_poninter;
 	sigset_t sigset;
-	sigemptyset(&sigset);
+	sigemptyset(&sigset); //TODO: ver como evitar que le lleguen las señales
 	sigaddset(&sigset, SIGUSR1);
 	int sig;
-	if(fd == NULL)
+	if(fd == ERROR)
 		printf("el file descriptor es null\n");
 	printf("el file descriptor NO es null\n");
 	header_t *header = read_header(fd);
 
 	/* calculate position from header */
-	fseek(fd, MESSAGE_SIZE * header -> head , SEEK_CUR); //TODO: verificar que no haya que hacer alguna modificación extra.
+	//TODO: verificar que no haya que hacer alguna modificación extra.
+	lseek(fd, MESSAGE_SIZE * header -> head, SEEK_CUR); //ver de que el header -> head arranque en 1 y después como manejo el modulo para que no de nunca cero
 	aux = malloc(sizeof(char)*LINE_LENGTH);
-	while(fgets(aux, LINE_LENGTH, fd) == NULL) { //TODO: si fuese null que debería pasar.
+	while((get_string(aux, LINE_LENGTH, fd) == ERROR) || (header -> read == FALSE)) { //TODO: si fuese null que debería pasar.
 		/* if there is nothing to read, wait for a signal */
 		printf("en espera...\n");
+		//TODO:no es completamente seguro
 		flock_unlock(fd);
 		sigwait(&sigset, &sig); //TODO: ver bien que es sigset
+		printf("desperté!!\n");
+		scanf("%c",aux);
 		while(!flock_write(fd))
 			;
+		printf("bloquee de nuevo el archivo\n");
 	} 
 	msg->length = atoi(aux);
 	printf("message length %d\n", msg->length);
 	free(aux);
 
 	msg -> content = calloc(msg->length, sizeof(char));
-	fgets(msg -> content, msg->length, fd); //TODO: si fuese null que debería pasar.
+	get_string(msg -> content, msg->length, fd); //TODO: si fuese null que debería pasar.
 	printf("%s\n",msg->content);
-	fseek(fd, LINE_LENGTH - msg->length, SEEK_CUR);
+	lseek(fd, LINE_LENGTH - msg->length, SEEK_CUR); /* consume the rest of the line */
 
 	aux = calloc(LINE_LENGTH, sizeof(char));
-	fgets(aux, LINE_LENGTH, fd); //TODO: si fuese null que debería pasar.	
+	get_string(aux, LINE_LENGTH, fd); //TODO: si fuese null que debería pasar.	
 	msg -> from = atoi(aux);
 	printf("message author: %d\n", msg->from);
 	free(aux);
 
 	//TODO: cómo modifico el header para que tenga sentido??
-	/* update the header file */
+	/* update the header */
 	head_poninter = header -> head;
-	header -> head = (++head_poninter) % SIZE_FILE;
+	header -> head = (++ head_poninter) % SIZE_FILE;
 	printf("el puntero de la cabeza es: %d\n", header->head);
 	header -> write = TRUE;
 	if(header -> tail == header -> head) {
 		/* there is nothing to read. */ 
-		//header -> read = FALSE;
+		header -> read = FALSE;
 	} 
 	write_header(header, fd);
 	free(header);
 	return;
 }
 
-static void write_message(message_t *msg, FILE *fd) {
-	printf("estoy escribiendo\n");
+static void write_message(message_t *msg, int fd) {
+	//TODO: falta checkear que tenga lugar para escribir
 	char *aux = calloc(10, sizeof(char));
 	int tail_pointer;
 	header_t *header = read_header(fd);
-
+	printf("%d\n", header -> write);
+	while((header -> write) == FALSE){
+		sigset_t sigset;
+		sigemptyset(&sigset); //TODO: ver como evitar que le lleguen las señales
+		sigaddset(&sigset, SIGUSR1);
+		int sig;
+		printf("en espera para escribir...\n");
+		flock_unlock(fd);
+		sigwait(&sigset, &sig); //TODO: ver bien que es sigset
+		while(!flock_write(fd))
+			;
+	}
 	/* calculate position from header */
-	fseek(fd, MESSAGE_SIZE * header -> tail, SEEK_CUR); //TODO: verificar que no haya que hacer alguna modificación extra.
-
+	//lseek(fd, MESSAGE_SIZE * header -> tail, SEEK_CUR); //TODO: verificar que no haya que hacer alguna modificación extra.
+	lseek(fd, MESSAGE_SIZE * header -> tail, SEEK_CUR);
 	itoa(msg -> length, aux);
 	write_line((char*)strdup(aux), fd);
 	free(aux);
 	
 	write_line(strdup(msg -> content), fd);
 	
-	aux = calloc(LINE_LENGTH, sizeof(char));
+	aux = calloc(10, sizeof(char));
 	itoa(msg -> from, aux);
 	write_line(strdup(aux), fd);
 	free(aux);
 	//TODO: cómo modifico el header para que tenga sentido??
 	/* update header */
 	tail_pointer = header -> tail;
-	printf("el cola es: %d\n", tail_pointer);
 	header -> tail = (++tail_pointer) % SIZE_FILE;
-	printf("el puntero de la cola es: %d\n", header->tail);
+	printf("puntero a la cola: %d\n", header->tail);
 	header -> read = TRUE;
 	if(header -> tail == header -> head) {
 		/* there is no space to write */
-		//header -> write = FALSE;
+		header -> write = FALSE;
 	} 
 	write_header(header, fd);
 	free(header);
@@ -233,31 +250,29 @@ static void itoa ( int value, char * str ) {
 	return;
 }
 
-static void write_line(char *msg, FILE *fd) {
+static void write_line(char *msg, int fd) {
 	printf("write line\n");
-	//int n = sizeof(msg) / sizeof(msg[0]);
 	int n = strlen(msg);
-	char *str = calloc(LINE_LENGTH , sizeof(char));
+	char *str = calloc(LINE_LENGTH + 1 , sizeof(char));
 	strcat(str, msg);
 	printf("%s\n", str);
-	//n = n + 3;
-	for(; n < LINE_LENGTH - 2; n++) {
-		str[n] = ' ';
+	for(; n < LINE_LENGTH - 1; n++) {
+		str[n] = '-';
 	}
 	str[n] = '\n';
-	fputs(str, fd);
-	printf("%s\n", str);
+	printf("line string:%s", str);
+	put_string(str, fd);
 	return;
 }
 
-static header_t *read_header(FILE *fd) {
+static header_t *read_header(int fd) {
 	printf("reading header\n");
 	char *str = calloc(LINE_LENGTH, sizeof(char));
 	header_t *header = (header_t*)malloc(sizeof(header_t));
 	printf("posicionando cursor\n");
-	fseek(fd, 0, SEEK_SET);
+	lseek(fd, 0, SEEK_SET);
 	printf("intento leer header\n");
-	if(	fgets(str, LINE_LENGTH, fd) == NULL) {
+	if(	get_string(str, LINE_LENGTH, fd) == ERROR) {
 		printf("archivo vacío\n");
 		header -> head = 0;
 		header -> tail = 0;
@@ -266,7 +281,6 @@ static header_t *read_header(FILE *fd) {
 		printf("cargue el header\n");
 		write_line("0 0 1 1", fd); /* positions to read and write. The last are in TRUE*/
 	} else {
-		printf("intento entrar al parser\n");
 		printf("%s\n", str);
 		parse_header(str, header);
 	}
@@ -280,13 +294,19 @@ static void parse_header(char *str, header_t *header) {
 	int i = 0;
 	int j = 0;
 	int k = 0;
-	char data[4][MAX_MESSAGES];
-	for (; ((str[i] != 0) && (str[i] == '\n')) || (state == END) ; ++i) {
-		printf("%c\n", str[i]);
+	char data[5][MAX_MESSAGES];
+
+	for (; (str[i] != 0) && (state != END) ; ++i) {
+		printf("%i - %c\n", i, str[i]);
 		switch (str[i]) {
+			case '\n':
+					state = END;
+					break;
+			case '-':
 			case ' ':
 					if(state == SPACE) {
 						state = END;
+						break;
 					}
 					state = SPACE;
 					data[j++][k] = 0;
@@ -298,10 +318,13 @@ static void parse_header(char *str, header_t *header) {
 		}
 	}
 	header -> head = atoi(data[0]);
+	printf("%s\n", data[0]);
 	header -> tail = atoi(data[1]);
+	printf("%s\n", data[1]);
 	header -> read = atoi(data[2]);
+	printf("%s\n", data[2]);
 	header -> write = atoi(data[3]);
-}
+	printf("%s\n", data[3]);}
 
 static void reverse(char s[], int size) {
 	int i;
@@ -329,8 +352,8 @@ static char *get_fname(ipc_t *ipc) {
     return path;
 }
 
-void write_header(header_t *header, FILE *fd) {
-	fseek(fd, 0, SEEK_SET);
+void write_header(header_t *header, int fd) {
+	lseek(fd, 0, SEEK_SET);
 
 	char *aux = calloc(SIZE_FILE, sizeof(char));
 	char *line = calloc(LINE_LENGTH, sizeof(char));
@@ -361,3 +384,54 @@ void write_header(header_t *header, FILE *fd) {
 	free(aux);
 	write_line(line, fd);
 }
+
+static int get_string(char *str, int length, int fd) {
+	char *buffer = calloc(length + 10, sizeof(char));
+	int state = START;
+	int i = 0;
+	int ans = read(fd, buffer, (length)* sizeof(char));
+	printf("buffer: %s\n", buffer);
+	printf("reads ans:%d\n", ans);
+	if (ans <= 0) {
+		return -1;
+	} 
+	//TODO: hay que garantizar que la información del método no tenga ni espacios ni \n
+	while((buffer[i] != 0) && (state != END)){
+		switch (buffer[i]) {
+			case '\n':
+					if(state == SPACE) {
+						buffer[i - 2] = 0;
+					}
+					state = END;
+					break;
+			case '-':
+			case ' ':
+					if(state == SPACE) {
+						state = END;
+						buffer[i - 2] = 0;
+						break;
+					}
+					state = SPACE;
+					str[i] = buffer[i];
+					break; 
+			default:
+					str[i]=buffer[i];
+					state = START;
+		}
+		i++;
+	}
+	buffer[i] = 0;
+	printf("%s\n", str);
+	return ans;
+}
+
+static int put_string(char *str, int fd) {
+	int ans = write(fd, str, strlen(str)*sizeof(char));
+	printf("puts str: %s", str);
+	printf("puts ans:%d\n", ans);
+	if(ans <= 0){
+		return -1;
+	}
+	return ans;
+}
+
