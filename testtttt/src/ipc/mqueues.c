@@ -53,6 +53,7 @@ void ipc_send(ipc_t *ipc, message_t *message, int s){
 	buf_t buf;
 	int size = sizeof(uint16_t)+*((uint32_t*)(message->content+sizeof(uint8_t)));
 	buf.mtype=0;
+	buf.mtext=malloc(size);
 	memcpy(&(buf.mtext), message, size);
 	printf("ipc_id en ipc_send: %d\n",ipc->id);
 
