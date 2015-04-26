@@ -7,8 +7,12 @@
 #include <sys/types.h>
 
 #define SERVER "../system_files/server-data.txt"
-#define LINE_LENGTH 250 /* including '/n' */
+#define LINE_LENGTH 100 /* including '/n' */
 #define SIZE_FILE 4 /* amount of messages allow */
+
+#define START 0
+#define SPACE 1
+#define END 2
 
 #define BOOL int
 #define TRUE 1

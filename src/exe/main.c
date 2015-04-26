@@ -42,6 +42,7 @@ void test_ipc(){
 
 	/* read message */
 	msg = (message_t *)malloc(sizeof(message_t));
+  printf("voy a leer la respuesta\n");
 	msg = ipc_read(ipc_l);
 	printf("%s\n", msg->content);
 	free(msg);

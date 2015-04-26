@@ -145,9 +145,9 @@ static void read_message(message_t *msg, FILE *fd) {
 	header_t *header = read_header(fd);
 
 	/* calculate position from header */
-	fseek(fd, MESSAGE_SIZE * header -> head, SEEK_CUR); //TODO: verificar que no haya que hacer alguna modificación extra.
+	fseek(fd, MESSAGE_SIZE * header -> head , SEEK_CUR); //TODO: verificar que no haya que hacer alguna modificación extra.
 	aux = malloc(sizeof(char)*LINE_LENGTH);
-	if(fgets(aux, LINE_LENGTH, fd) == NULL) { //TODO: si fuese null que debería pasar.
+	while(fgets(aux, LINE_LENGTH, fd) == NULL) { //TODO: si fuese null que debería pasar.
 		/* if there is nothing to read, wait for a signal */
 		printf("en espera...\n");
 		flock_unlock(fd);
@@ -159,9 +159,12 @@ static void read_message(message_t *msg, FILE *fd) {
 	printf("message length %d\n", msg->length);
 	free(aux);
 
+	msg -> content = calloc(msg->length, sizeof(char));
 	fgets(msg -> content, msg->length, fd); //TODO: si fuese null que debería pasar.
+	printf("%s\n",msg->content);
+	fseek(fd, LINE_LENGTH - msg->length, SEEK_CUR);
 
-	aux = malloc(sizeof(char)*10);
+	aux = calloc(LINE_LENGTH, sizeof(char));
 	fgets(aux, LINE_LENGTH, fd); //TODO: si fuese null que debería pasar.	
 	msg -> from = atoi(aux);
 	printf("message author: %d\n", msg->from);
@@ -170,7 +173,8 @@ static void read_message(message_t *msg, FILE *fd) {
 	//TODO: cómo modifico el header para que tenga sentido??
 	/* update the header file */
 	head_poninter = header -> head;
-	header -> head = (head_poninter ++) % SIZE_FILE;
+	header -> head = (++head_poninter) % SIZE_FILE;
+	printf("el puntero de la cabeza es: %d\n", header->head);
 	header -> write = TRUE;
 	if(header -> tail == header -> head) {
 		/* there is nothing to read. */ 
@@ -203,7 +207,9 @@ static void write_message(message_t *msg, FILE *fd) {
 	//TODO: cómo modifico el header para que tenga sentido??
 	/* update header */
 	tail_pointer = header -> tail;
-	header -> tail = (tail_pointer ++) % SIZE_FILE;
+	printf("el cola es: %d\n", tail_pointer);
+	header -> tail = (++tail_pointer) % SIZE_FILE;
+	printf("el puntero de la cola es: %d\n", header->tail);
 	header -> read = TRUE;
 	if(header -> tail == header -> head) {
 		/* there is no space to write */
@@ -231,12 +237,12 @@ static void write_line(char *msg, FILE *fd) {
 	printf("write line\n");
 	//int n = sizeof(msg) / sizeof(msg[0]);
 	int n = strlen(msg);
-	char *str = calloc(LINE_LENGTH, sizeof(char));
+	char *str = calloc(LINE_LENGTH , sizeof(char));
 	strcat(str, msg);
 	printf("%s\n", str);
 	//n = n + 3;
 	for(; n < LINE_LENGTH - 2; n++) {
-		str[n] = '-';
+		str[n] = ' ';
 	}
 	str[n] = '\n';
 	fputs(str, fd);
@@ -246,10 +252,10 @@ static void write_line(char *msg, FILE *fd) {
 
 static header_t *read_header(FILE *fd) {
 	printf("reading header\n");
-	char *str = malloc(sizeof(char*)*LINE_LENGTH);
+	char *str = calloc(LINE_LENGTH, sizeof(char));
 	header_t *header = (header_t*)malloc(sizeof(header_t));
 	printf("posicionando cursor\n");
-	fseek(fd, 1, SEEK_SET);
+	fseek(fd, 0, SEEK_SET);
 	printf("intento leer header\n");
 	if(	fgets(str, LINE_LENGTH, fd) == NULL) {
 		printf("archivo vacío\n");
@@ -261,26 +267,34 @@ static header_t *read_header(FILE *fd) {
 		write_line("0 0 1 1", fd); /* positions to read and write. The last are in TRUE*/
 	} else {
 		printf("intento entrar al parser\n");
+		printf("%s\n", str);
 		parse_header(str, header);
 	}
 	return header;
 }
 
 static void parse_header(char *str, header_t *header) {
-	printf("Entre al header\n");
+	printf("Intneto parsear header\n");
+	printf("%s\n",str );
+	int state = START;
 	int i = 0;
 	int j = 0;
 	int k = 0;
 	char data[4][MAX_MESSAGES];
-	for (; (str[i] != 0) && (str[i] == '\n'); ++i) {
-		printf("estoy en el for %d\n", i);
+	for (; ((str[i] != 0) && (str[i] == '\n')) || (state == END) ; ++i) {
+		printf("%c\n", str[i]);
 		switch (str[i]) {
 			case ' ':
+					if(state == SPACE) {
+						state = END;
+					}
+					state = SPACE;
 					data[j++][k] = 0;
 					k = 0;
 					break; 
 			default:
 					data[j][k++] = str[i];
+					state = START;
 		}
 	}
 	header -> head = atoi(data[0]);
@@ -316,27 +330,33 @@ static char *get_fname(ipc_t *ipc) {
 }
 
 void write_header(header_t *header, FILE *fd) {
+	fseek(fd, 0, SEEK_SET);
+
 	char *aux = calloc(SIZE_FILE, sizeof(char));
 	char *line = calloc(LINE_LENGTH, sizeof(char));
 	itoa(header -> head, aux);
+	printf("%s\n", aux);
 	strcat(line, aux);
 	free(aux);
 	strcat(line, " ");
 
 	aux = calloc(SIZE_FILE, sizeof(char));
 	itoa(header -> tail, aux);
+	printf("%s\n", aux);
 	strcat(line, aux);
 	free(aux);
 	strcat(line, " ");
 
  	aux = calloc(SIZE_FILE, sizeof(char));
 	itoa(header -> read, aux);
+	printf("%s\n", aux);
 	strcat(line, aux);
 	strcat(line, " ");
 	free(aux);
 
 	aux = calloc(SIZE_FILE, sizeof(char));
 	itoa(header -> write, aux);
+	printf("%s\n", aux);
 	strcat(line, aux);
 	free(aux);
 	write_line(line, fd);
