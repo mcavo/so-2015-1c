@@ -51,12 +51,12 @@ void ipc_close(ipc_t *ipc){
 void ipc_send(ipc_t *ipc, message_t *message, int size){
     
 	printf("size= %d\n", size);
-	buf_t* buf=malloc(sizeof(long)+size);
+	buf_t* buf=malloc(sizeof(buf)+sizeof(message_t)+size);
 	buf->mtype=0;
 	memcpy(&(buf->mtext), message, size);
 	printf("ipc_id en ipc_send: %d\n",ipc->id);
 
-	if (msgsnd(ipc->id, buf, size, 0) == -1)
+	if (msgsnd(ipc->id, buf, (sizeof(*buf)-sizeof(long)), 0) == -1)
     {
 		perror("msgsnd");
 		fprintf(stderr, "Ocurrio el error %s en ipc_send\n",strerror(errno));		
