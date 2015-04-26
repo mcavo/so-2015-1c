@@ -62,8 +62,8 @@ void ipc_close(ipc_t *ipc){
     }
 }
 
-//No estoy usando recipient
-void ipc_send(ipc_t *ipc, uint16_t recipient, void *message, uint16_t size){
+
+void ipc_send(ipc_t *ipc, void *message, uint16_t size){
     
     if (msgsnd(ipc->id, &message, size, 0) == -1)
     	perror("msgsnd");
