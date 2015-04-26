@@ -77,7 +77,7 @@ int db_buy_tickets (database_t *db, uint16_t movie_id, int first, int last) {
 	return 0;
 }
 
-int db_get_tickets(database_t *db, uint16_t movie_id, ticket_t** t) {
+int db_get_cinema(database_t *db, uint16_t movie_id, ticket_t** t) {
 	int i;
 	if (movie_id >= db->count) {
 		*t = NULL;
@@ -86,11 +86,13 @@ int db_get_tickets(database_t *db, uint16_t movie_id, ticket_t** t) {
 	*t = malloc (sizeof(ticket_t)*MOVIE_MAX_PLACES);
 	if (*t == NULL)
 		return ERR_OUT_OF_MEMORY;
+
 	movie_t *movie = &(db->movies[movie_id]);
 	db_rlock(db,movie_id,0,MOVIE_MAX_PLACES-1);
 	for (i=0; i<MOVIE_MAX_PLACES; i++) {
 		(*t)[i] = movie->tickets[i];
 	}
 	db_unlock(db,movie_id,0,MOVIE_MAX_PLACES-1);
-
+	
+	return 0;
 }

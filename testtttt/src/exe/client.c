@@ -1,40 +1,52 @@
 #include "../../inc/front.h"
 
-void handle_response(ipc_t *ipc);
 
-void showCinemaTitle ();
+static void showCinemaTitle();
 
-int showMenu();
+static int showMenu();
+
+static int get_server_pid();
+
 
 int main(int argc, char** argv) {
-	//check(argc >= 2, "Usage: client <server address> <action> [params...]\n");
-	char *server = argv[1];
+
 	int action;
+	int server_pid = get_server_pid();
+
+	if(server_pid==-1){
+		printf("Error server_pid.txt\n");
+		exit(0);
+	}	
 	
-	//int action_code = action_string_to_code(action);
-	//check(action_code, "Unknown action: %s\n", action);
-	/* Valid arguments, valid command. Let's connect */
-	ipc_t *ipc = ipc_connect(server);
+	showCinemaTitle();
+
+	ipc_t *ipc = ipc_connect(server_pid);
+	ipc_t *ipc_res;
+
 	while ( (action = showMenu())!=ACTION_EXIT ) {
-		switch (action_code) {
+
+		ipc_res = ipc_open(getpid());
+
+		switch (action) {
 			case ACTION_SHOW_FIXTURE:
-				//check(argc == 3, "Usage: client <server address> list\n");
-				actionShowFixture(ipc);
+				actionShowFixture(ipc, ipc_res);
 				break;
 			case ACTION_BUY_TICKETS:
-				//check(argc == 4, "Usage: client <server address> buy <movie id>\n");
-				//int movie_id = atoi(argv[3]);
-				actionBuyTickets(ipc);
+				actionBuyTickets(ipc, ipc_res);
 				break;
-			case ACTION_INVALID:
+			default:
 				printf("Invalid option.\n");
 				break;
 		}
+
+		ipc_close(ipc_res);
 	}
 	printf("\n\nGoodbye!\n");
+
+	return 0;
 }
 
-void showCinemaTitle () {
+static void showCinemaTitle () {
     printf("\n\
                 ****  ***********     ********\n\
                 ****  ************   **********\n\
@@ -60,7 +72,7 @@ void showCinemaTitle () {
 
 }
 
-int showMenu(){
+static int showMenu(){
     int choice = -1;
         printf("\n  **********\n\
   ** MENU **\n\
@@ -75,3 +87,29 @@ int showMenu(){
 
   return choice;
 }
+
+static int get_server_pid(){
+
+	FILE *fp;
+	char str[60];
+	int pid;
+	fp = fopen("serverPid.txt" , "r");
+
+	if(fp == NULL) 
+	{
+	perror("Error opening file");
+		return -1;
+	}
+
+	if( fgets (str, 60, fp)==NULL ) 
+		return -1;
+
+	pid= atoi(str);
+
+	fclose(fp);
+
+	return pid;
+   
+}
+
+

@@ -1,7 +1,7 @@
 #include "../inc/actions.h"
 
 
-res_error_t * res_error(uint16_t sender, int32_t code) {
+res_error_t * res_error(int32_t code) {
 	res_error_t * res = malloc(sizeof(res_error_t));
 	res->type = ACTION_ERROR;
 	res->code = code;
@@ -38,10 +38,14 @@ void req_fixture(ipc_t *ipc) {
 	req_fixture_t req = {
 		.type = ACTION_SHOW_FIXTURE
 	};
-	ipc_send(ipc, ipc->server_id, &req, sizeof(req));
+	message_t msg;
+	msg.sender = getpid();
+	memcpy(msg.content,&req,sizeof(req));
+	
+	ipc_send(ipc, &msg, sizeof(msg));
 }
 
-res_fixture_t * res_fixture(database_t *db, uint16_t sender){
+res_fixture_t * res_fixture(database_t *db){
 	size_t fix_size = sizeof(movie_t) * db->count;
 	size_t res_size = sizeof(res_fixture_t) + fix_size;
 	res_fixture_t *res = (res_fixture_t*) malloc(res_size);
@@ -68,16 +72,20 @@ void req_buy_tickets(ipc_t *ipc, uint16_t movie_id, ticket_t first, ticket_t las
 		.first = first,
 		.last = last
 	};
-	ipc_send(ipc, ipc->server_id, &req, sizeof(req));
+	
+	message_t msg;
+	msg.sender = getpid();
+	memcpy(msg.content,&req,sizeof(req));
+	ipc_send(ipc, &msg, sizeof(msg));
 }
 
-res_buy_tickets_t * res_buy_tickets(database_t *db, uint16_t sender, req_buy_tickets_t *req) {
+res_buy_tickets_t * res_buy_tickets(database_t *db, req_buy_tickets_t *req) {
 	int error = db_buy_tickets(db,req->movie_id,req->first,req->last);
 	if(error<0)
-		return (res_buy_tickets_t *) res_error(sender,error);
+		return (res_buy_tickets_t *) res_error(error);
 	res_buy_tickets_t * res = malloc(sizeof(res_buy_tickets_t));
 	if (res == NULL)
-		return (res_buy_tickets_t *) res_error(sender,ERR_OUT_OF_MEMORY);
+		return (res_buy_tickets_t *) res_error(ERR_OUT_OF_MEMORY);
 	res->type = ACTION_BUY_TICKETS,
 	res->size = sizeof(res_buy_tickets_t);
 	return res;
@@ -94,14 +102,20 @@ void req_print_cinema(ipc_t *ipc, uint16_t movie_id) {
 		.type = ACTION_PRINT_CINEMA,
 		.movie_id = movie_id
 	};
-	ipc_send(ipc, ipc->server_id, &req, sizeof(req));
+	
+	message_t msg;
+	msg.sender = getpid();
+	memcpy(msg.content,&req,sizeof(req));
+	
+	ipc_send(ipc, &msg, sizeof(msg));
+
 }
 
-res_print_cinema_t * res_print_cinema(database_t *db, uint16_t sender, req_print_cinema_t *req) {
+res_print_cinema_t * res_print_cinema(database_t *db, req_print_cinema_t *req) {
 	ticket_t * cinema;
 	int i = db_get_cinema(db,req->movie_id,&cinema);
 	if(cinema == NULL)
-		return (res_print_cinema_t *) res_error(sender,i);
+		return (res_print_cinema_t *) res_error(i);
 	else {
 		int size = sizeof(uint8_t)+sizeof(uint32_t)+sizeof(ticket_t)*MOVIE_MAX_PLACES;
 		res_print_cinema_t * res = malloc(size);
