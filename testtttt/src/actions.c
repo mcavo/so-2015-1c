@@ -36,7 +36,8 @@ void hand_error(res_error_t *err) {
 
 void req_fixture(ipc_t *ipc) {
 	req_fixture_t req = {
-		.type = ACTION_SHOW_FIXTURE
+		.type = ACTION_SHOW_FIXTURE,
+		.size = sizeof(req_fixture_t)
 
 	};
 	printf("direccion del req original req_fixture: %d\n", (int)&req);
@@ -72,6 +73,7 @@ void hand_fixture(res_fixture_t *res) {
 void req_buy_tickets(ipc_t *ipc, uint16_t movie_id, ticket_t first, ticket_t last) {
 	req_buy_tickets_t req = {
 		.type = ACTION_BUY_TICKETS,
+		.size = sizeof(req_buy_tickets_t),
 		.movie_id = movie_id,
 		.first = first,
 		.last = last
@@ -104,6 +106,7 @@ void hand_buy_tickets(res_buy_tickets_t *res) {
 void req_print_cinema(ipc_t *ipc, uint16_t movie_id) {
 	req_print_cinema_t req = {
 		.type = ACTION_PRINT_CINEMA,
+		.size = sizeof(req_print_cinema_t),
 		.movie_id = movie_id
 	};
 	

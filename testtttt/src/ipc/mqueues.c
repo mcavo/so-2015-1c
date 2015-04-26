@@ -51,11 +51,10 @@ void ipc_close(ipc_t *ipc){
 void ipc_send(ipc_t *ipc, message_t *message, int s){
     
 	buf_t buf;
-	
+	int size = sizeof(uint16_t)+*((uint32_t*)(message->content+sizeof(uint8_t)));
 	buf.mtype=0;
-	memcpy(&(buf.mtext), message, sizeof(message));
+	memcpy(&(buf.mtext), message, size);
 	printf("ipc_id en ipc_send: %d\n",ipc->id);
-	 int size = sizeof(buf) - sizeof(long);  
 
 	if (msgsnd(ipc->id, &buf, size, 0) == -1)
     {
