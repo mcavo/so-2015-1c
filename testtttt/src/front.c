@@ -49,19 +49,19 @@ static ticket_t getPosition (char row, int col) {
 
 static void handle_res(ipc_t *ipc) {
 	message_t *msg = ipc_receive(ipc);
-	res_any_t *res = (void*) &(msg->content);
-	switch (res->type) {
+	uint8_t t = (uint8_t) (*(msg->content));
+	switch (t) {
 		case ACTION_SHOW_FIXTURE:
-			hand_fixture((res_fixture_t*) res);
+			hand_fixture((res_fixture_t*) (msg->content));
 			break;
 		case ACTION_BUY_TICKETS:
-			hand_buy_tickets((res_buy_tickets_t*) res);
+			hand_buy_tickets((res_buy_tickets_t*) (msg->content));
 			break;
 		case ACTION_PRINT_CINEMA:
-			hand_print_cinema((res_print_cinema_t*) res);
+			hand_print_cinema((res_print_cinema_t*) (msg->content));
 			break;
 		case ACTION_ERROR:
-			hand_error((res_error_t*) res);
+			hand_error((res_error_t*) (msg->content));
 			break;
 	}
 	free(msg);
