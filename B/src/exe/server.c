@@ -77,8 +77,7 @@ static void worker(message_t * msg) {
     ipc_t* ipc;
     ipc = ipc_connect(msg->sender);
     printf("Conecto worker con ipc_res id: %d\n",ipc->id); 
-    message_t res;
-    char * r;
+    
     printf("%d\n",(int)command );
 	switch (command) {
         case ACTION_SHOW_FIXTURE: 
@@ -97,7 +96,7 @@ static void worker(message_t * msg) {
     }
 	//Creamos un ipc nuevo entre el worker y el cliente, cuyo id es el pid del cliente guardado en el msg.
   	printf("%d\n",(int)command );
-    free(ipc);
+
 	
 }
 

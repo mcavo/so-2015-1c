@@ -4,7 +4,7 @@
 	#include "ipc/filesign.c"
 
 #elif defined(IPC_SOCKETS)
-	#include "ipc/sockets.c"
+	#include "ipc/sockStream.c"
 
 #elif defined(IPC_SHMEM)
 	#include "ipc/shm.c"

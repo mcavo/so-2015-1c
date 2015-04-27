@@ -10,7 +10,8 @@
 #include <sys/un.h>
 #include "../ipc.h"
 
-#define SOCK_PATH "mysocket"//que lo pegue ahi
+#define SOCK_PATH "mysocket"
+#define MSG_SIZE 1024*10
 
 
 typedef struct {
@@ -31,13 +32,5 @@ typedef struct{
 }buf_t;
 
 
-ipc_t *ipc_listen(int pid);
-ipc_t *ipc_connect(int pid,int server_id);
-
-ipc_t* ipc_open(int pid);
-void ipc_close(ipc_t *ipc);
-
-void ipc_send(ipc_t *ipc, uint16_t recipient, void *message, uint16_t len);
-message_t* ipc_receive(ipc_t *ipc);
 
 #endif

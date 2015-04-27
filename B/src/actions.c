@@ -161,7 +161,7 @@ void hand_print_cinema(res_print_cinema_t *res) {
 		printf("%sO%s ",color,ANSI_C_RESET_COLOR);
 	}
 	printf("\n\t");
-	for (i=0 ; i < MOVIE_MAX_COL ; i++) {
+	for (i=1 ; i <= MOVIE_MAX_COL ; i++) {
 		printf("%d ",i);
 	}
 	printf("\n\n");

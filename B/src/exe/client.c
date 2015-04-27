@@ -6,9 +6,6 @@ static void showCinemaTitle();
 
 static int showMenu();
 
-static int get_server_pid();
-
-
 int main(int argc, char** argv) {
 
 	int action;
@@ -24,11 +21,11 @@ int main(int argc, char** argv) {
 	ipc_t *ipc = ipc_connect(server_pid);
 	ipc_t *ipc_res;
 	int pid=getpid();
-	uint16_t movie_id=0;
 
 	while ( (action = showMenu())!=ACTION_EXIT ) {
 
-		ipc_res = ipc_connect(pid);
+		ipc_res = ipc_open(pid);
+		//ipc_res = listen(pid);
 		printf("Cliente abre ok ipc_res id: %d, pid_cliente: %d\n",ipc_res->id ,pid);  
 
 		switch (action) {
