@@ -1,6 +1,7 @@
 #include "../../inc/front.h"
 #include "../../inc/utils.h"
 
+#define clean while(getchar()!='\n')
 
 static void showCinemaTitle();
 static int showMenu();

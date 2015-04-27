@@ -154,3 +154,4 @@ static void free_memory(message_t * data) {
   if(exit_status == -1) 
     fatal("shm_unlink failure");
 }
+
