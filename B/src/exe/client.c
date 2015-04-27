@@ -1,5 +1,6 @@
 #include "../../inc/front.h"
 
+#define clean while(getchar()!='\n')
 
 static void showCinemaTitle();
 
@@ -20,14 +21,14 @@ int main(int argc, char** argv) {
 	
 	showCinemaTitle();
 
-	ipc_t *ipc = ipc_connect(server_pid,server_pid);
+	ipc_t *ipc = ipc_connect(server_pid);
 	ipc_t *ipc_res;
 	int pid=getpid();
 	uint16_t movie_id=0;
 
 	while ( (action = showMenu())!=ACTION_EXIT ) {
 
-		ipc_res = ipc_connect(pid,server_pid);
+		ipc_res = ipc_connect(pid);
 		printf("Cliente abre ok ipc_res id: %d, pid_cliente: %d\n",ipc_res->id ,pid);  
 
 		switch (action) {
@@ -87,33 +88,11 @@ static int showMenu(){
   Please, select your choice:\n\
     ");
   scanf("%d", &choice);
-  getchar();
+  clean;
 
   return choice;
 }
 
-static int get_server_pid(){
 
-	FILE *fp;
-	char str[60];
-	int pid;
-	fp = fopen("serverPid.txt" , "r");
-
-	if(fp == NULL) 
-	{
-	perror("Error opening file");
-		return -1;
-	}
-
-	if( fgets (str, 60, fp)==NULL ) 
-		return -1;
-
-	pid= atoi(str);
-
-	fclose(fp);
-
-	return pid;
-   
-}
 
 
