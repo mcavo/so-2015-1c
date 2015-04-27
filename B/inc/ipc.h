@@ -9,7 +9,7 @@
 	#include "ipc/filesign.h"
 
 #elif defined(IPC_SOCKETS)
-	#include "ipc/sockets.h"
+	#include "ipc/sockStream.h"
 
 #elif defined(IPC_SHM)
 	#include "ipc/shm.h"
