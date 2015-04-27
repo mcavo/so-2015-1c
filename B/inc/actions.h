@@ -18,6 +18,8 @@
 #define TICKET_AVAILABLE "\e[1;32m" //GREEN
 #define TICKET_BOUGHT "\e[1;31m" //RED
 
+int get_server_pid();
+
 typedef struct {
 	uint8_t type;
 	int32_t code;

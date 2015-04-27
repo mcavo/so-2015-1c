@@ -1,4 +1,4 @@
-C_FLAGS = -Wall
+C_FLAGS = -Wall -DIPC_$(IPC)
 C_FILES = $(wildcard src/*.c)
 H_FILES = $(wildcard inc/*.h)
 
