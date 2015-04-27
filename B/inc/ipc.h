@@ -2,7 +2,6 @@
 #define __IPC_H__
 
 #include <stdint.h>
-#include "ipc/mqueues.h"
 
 
 
@@ -25,6 +24,16 @@
 	#error No IPC selected (use make IPC=[FILESIGN|SOCKETS])
 
 #endif
+
+
+ipc_t *ipc_listen(int pid);
+ipc_t *ipc_connect(int pid);
+
+ipc_t* ipc_open(int pid);
+void ipc_close(ipc_t *ipc);
+
+void ipc_send(ipc_t *ipc, uint16_t recipient, void *message, uint16_t len);
+message_t* ipc_receive(ipc_t *ipc);
 
 
 

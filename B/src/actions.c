@@ -34,6 +34,29 @@ void hand_error(res_error_t *err) {
 	}
 }
 
+int get_server_pid(){
+
+	FILE *fp;
+	char str[60];
+	int pid;
+	fp = fopen("serverPid.txt" , "r");
+
+	if(fp == NULL) 
+	{
+	perror("Error opening file");
+		return -1;
+	}
+
+	if( fgets (str, 60, fp)==NULL ) 
+		return -1;
+
+	pid= atoi(str);
+
+	fclose(fp);
+
+	return pid;
+   
+}
 
 
 void req_fixture(ipc_t *ipc) {
