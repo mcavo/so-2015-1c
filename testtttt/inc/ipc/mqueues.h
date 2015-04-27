@@ -22,7 +22,7 @@ typedef struct {
 
 typedef struct{
 	long mtype;
-	message_t mtext;
+	message_t* mtext;
 }buf_t;
 
 

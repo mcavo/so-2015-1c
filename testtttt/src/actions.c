@@ -111,7 +111,7 @@ void req_print_cinema(ipc_t *ipc, uint16_t movie_id) {
 	msg.sender = getpid();
 	memcpy(msg.content,&req,sizeof(req));
 	
-	ipc_send(ipc, &msg, sizeof(msg.sender)+sizeof(req_fixture_t));
+	ipc_send(ipc, &msg, sizeof(msg.sender)+sizeof(req_print_cinema_t));
 
 }
 
