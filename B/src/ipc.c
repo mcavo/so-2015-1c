@@ -1,7 +1,8 @@
 #include "../inc/ipc.h"
+#include "ipc/mqueues.c"
 
-#if defined(IPC_FILESIG)
-	#include "ipc/filesig.c"
+#if defined(IPC_FILESIGN)
+	#include "ipc/filesign.c"
 
 #elif defined(IPC_SOCKETS)
 	#include "ipc/sockets.c"
@@ -16,3 +17,5 @@
 	#include "ipc/fifo.c"
 
 #endif
+
+

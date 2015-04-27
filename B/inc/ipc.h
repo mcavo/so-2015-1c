@@ -6,7 +6,6 @@
 
 
 
-/*
 #if defined(IPC_FILESIGN)
 	#include "ipc/filesign.h"
 
@@ -26,7 +25,7 @@
 	#error No IPC selected (use make IPC=[FILESIGN|SOCKETS])
 
 #endif
-*/
+
 
 
 #endif
