@@ -20,7 +20,6 @@
 
 typedef struct {
 	uint8_t type;
-	uint32_t size;
 	int32_t code;
 } res_error_t;
 
@@ -29,12 +28,10 @@ void hand_error(res_error_t *err);
 
 typedef struct {
 	uint8_t type;
-	uint32_t size;
 } req_fixture_t;
 
 typedef struct {
 	uint8_t type;
-	uint32_t size;
 	uint16_t count;
 	movie_t movies[];
 } res_fixture_t;
@@ -45,7 +42,6 @@ void hand_fixture(res_fixture_t *res);
 
 typedef struct {
 	uint8_t type;
-	uint32_t size;
 	uint16_t movie_id;
 	ticket_t first;
 	ticket_t last;
@@ -53,7 +49,6 @@ typedef struct {
 
 typedef struct {
 	uint8_t type;
-	uint32_t size;
 } res_buy_tickets_t;
 
 void req_buy_tickets(ipc_t *ipc, uint16_t movie_id, ticket_t first, ticket_t last);
@@ -61,14 +56,12 @@ res_buy_tickets_t *res_buy_tickets(database_t *db, req_buy_tickets_t *req);
 void hand_buy_tickets(res_buy_tickets_t *res);
 
 typedef struct {
-	uint8_t type;
-	uint32_t size;	
+	uint8_t type;	
 	uint16_t movie_id;
 } req_print_cinema_t;
 
 typedef struct {
 	uint8_t type;
-	uint32_t size;
 	uint8_t tickets[];
 } res_print_cinema_t;
 

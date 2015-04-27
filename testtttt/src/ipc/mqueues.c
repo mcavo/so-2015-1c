@@ -15,7 +15,7 @@ ipc_t *ipc_connect(int pid){
 	return NULL;
     }
 	
-    msq->id = msqid;
+    msq->queue = msqid;
 
     return msq;
 }
@@ -48,35 +48,34 @@ void ipc_close(ipc_t *ipc){
 }
 
 
-void ipc_send(ipc_t *ipc, message_t *message, int size){
+void ipc_send(ipc_t *ipc, uint16_t recipient, void *message, uint16_t len){
     
-	printf("size= %d\n", size);
-	buf_t* buf=malloc(sizeof(buf)+sizeof(message_t)+size);
-	buf->mtype=0;
-	buf->mtext = malloc(sizeof(message_t));
-	memcpy(buf->mtext, message, size);
-	printf("mtext sender en ipc_send: %d\n",(buf->mtext)->sender);
+	printf("size= %d\n", len);
+	buf_t* buf=malloc(sizeof(buf)+sizeof(message_t)+len);
+	buf->mtype=recipient;
+	(buf->mtext).sender = ipc->id;
+	(buf->mtext).content_len = len; 
+	memcpy((buf->mtext).content, message, len);
+	printf("mtext sender en ipc_send: %d\n",(buf->mtext).sender);
 	
 	printf("ipc_id en ipc_send: %d\n",ipc->id);
 	
-	int s =sizeof(*buf)-sizeof(long);
-	if (msgsnd(ipc->id, buf, s, 0) == -1)
+	if (msgsnd(ipc->queue, buf, sizeof(*buf) - sizeof(long) + len, 0) == -1)
     {
 		perror("msgsnd");
 		fprintf(stderr, "Ocurrio el error %s en ipc_send\n",strerror(errno));		
 		exit(1);
 	}
 
-		printf("hizo el send en ipc_send\n\n");	   
-	free(buf);
+
 }
 
 message_t* ipc_receive(ipc_t *ipc){
 
-		char buf[MSG_SIZE];
+		static char buf[MSG_SIZE];
 		int nbytes;
 
-	    if ((nbytes = msgrcv(ipc->id, &buf, MSG_SIZE, 0, 0)) == -1) {
+	    if ((nbytes = msgrcv(ipc->queue, &buf, MSG_SIZE, ipc->id, 0)) == -1) {
             perror("msgrcv");
 			fprintf(stderr, "Ocurrio el error %s en ipc_receive\n",strerror(errno));				
             exit(1);

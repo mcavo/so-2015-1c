@@ -40,13 +40,8 @@ void req_fixture(ipc_t *ipc) {
 		
 	};
 	printf("direccion del req original req_fixture: %d\n", (int)&req);
-	message_t msg;
-	msg.sender = getpid();
-	printf("msg.serder en req_fixture: %d\n",msg.sender);
-	memcpy(msg.content,&req,sizeof(req));
-	printf("direccion msg content en req_fixture: %d\n",(int)msg.content);
-	printf("msg.content en req_fixture: %d\n",((req_fixture_t*)(msg.content))->type);
-	ipc_send(ipc, &msg, sizeof(msg.sender)+sizeof(req_fixture_t));
+	ipc_send(ipc, ipc->server_id, &req, sizeof(req));
+
 }
 
 res_fixture_t * res_fixture(database_t *db){
@@ -56,7 +51,6 @@ res_fixture_t * res_fixture(database_t *db){
 	res->type = ACTION_SHOW_FIXTURE;
 	res->count = db->count;
 	memcpy(res->movies, db->movies, fix_size);
-	res->size = res_size;
 	return res;
 }
 
@@ -77,10 +71,7 @@ void req_buy_tickets(ipc_t *ipc, uint16_t movie_id, ticket_t first, ticket_t las
 		.last = last
 	};
 	
-	message_t msg;
-	msg.sender = getpid();
-	memcpy(msg.content,&req,sizeof(req));
-	ipc_send(ipc, &msg, sizeof(msg.sender)+sizeof(req_buy_tickets_t));
+	ipc_send(ipc, ipc->server_id, &req, sizeof(req));
 }
 
 res_buy_tickets_t * res_buy_tickets(database_t *db, req_buy_tickets_t *req) {
@@ -90,8 +81,7 @@ res_buy_tickets_t * res_buy_tickets(database_t *db, req_buy_tickets_t *req) {
 	res_buy_tickets_t * res = malloc(sizeof(res_buy_tickets_t));
 	if (res == NULL)
 		return (res_buy_tickets_t *) res_error(ERR_OUT_OF_MEMORY);
-	res->type = ACTION_BUY_TICKETS,
-	res->size = sizeof(res_buy_tickets_t);
+	res->type = ACTION_BUY_TICKETS;
 	return res;
 }
 
@@ -107,11 +97,7 @@ void req_print_cinema(ipc_t *ipc, uint16_t movie_id) {
 		.movie_id = movie_id
 	};
 	
-	message_t msg;
-	msg.sender = getpid();
-	memcpy(msg.content,&req,sizeof(req));
-	
-	ipc_send(ipc, &msg, sizeof(msg.sender)+sizeof(req_print_cinema_t));
+	ipc_send(ipc, ipc->server_id, &req, sizeof(req));
 
 }
 

@@ -102,7 +102,7 @@ static void worker(message_t * msg) {
 	printf("Conecto worker con ipc_res id: %d\n",ipc->id);  
 	
 	res.sender=getpid();
-    ipc_send(ipc, &res, sizeof(res));
+    ipc_send(ipc, msg->sender, &res, sizeof(res));
 }
 
 static uint8_t command_interpreter(char* cmd) {
