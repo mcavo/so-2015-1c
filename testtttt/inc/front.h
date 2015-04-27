@@ -8,5 +8,6 @@
 
 void actionShowFixture(ipc_t *ipc, ipc_t *ipc_res);
 void actionBuyTickets(ipc_t *ipc, ipc_t *ipc_res);
+void actionPrintCinema(ipc_t *ipc, ipc_t *ipc_res);
 
 #endif

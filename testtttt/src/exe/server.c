@@ -22,10 +22,12 @@ void save_server_pid(int server_pid){
    fclose(fp);
 }
 
+static pid_t server_pid;
 
 int main(void)
 {
-    pid_t pid, server_pid;
+    db = db_open("db");
+    pid_t pid;
     message_t* cmd;
     server_pid = getpid();   
 	ipc_t *ipc;   
@@ -34,7 +36,7 @@ int main(void)
     save_server_pid(server_pid);
 
     //Creamos el ipc unico, cuyo id es el pid del servidor.
-    ipc = ipc_open(server_pid); 	
+    ipc = ipc_connect(server_pid,server_pid); 	
 	
 	printf("server_pid: %d ipc_id: %d\n", server_pid,ipc->id); 
 
@@ -53,8 +55,6 @@ int main(void)
             switch(fork()){
                 case 0:
 					worker(cmd);//muere solo
-
-
                 case -1:
                     perror("fork2");
                     exit(1);
@@ -75,36 +75,31 @@ static void worker(message_t * msg) {
 	printf("msg.content en server: %d\n",((req_fixture_t*)(msg->content))->type);
 	uint8_t command = command_interpreter(msg->content);
     ipc_t* ipc;
+    ipc = ipc_connect(msg->sender,server_pid);
+    printf("Conecto worker con ipc_res id: %d\n",ipc->id); 
     message_t res;
     char * r;
-
+    printf("%d\n",(int)command );
 	switch (command) {
         case ACTION_SHOW_FIXTURE: 
-			r = (char*)res_fixture(db);
-			memcpy(res.content,r,*((uint32_t*)(r+sizeof(uint8_t))));
+            printf("entre en mi case!!\n");
+			res_fixture(ipc,db,msg->sender);
             break;
         case ACTION_PRINT_CINEMA:
-			r = (char*)res_print_cinema(db, (req_print_cinema_t*) msg->content);
-			memcpy(res.content,r,*((uint32_t*)(r+sizeof(uint8_t))));
+			res_print_cinema(ipc, db, msg->sender,(req_print_cinema_t*) msg->content);
 			break;
         case ACTION_BUY_TICKETS:
-			r = (char*)res_buy_tickets(db,(req_buy_tickets_t*) msg->content);
-			memcpy(res.content,r,*((uint32_t*)(r+sizeof(uint8_t))));
+			res_buy_tickets(ipc, db,msg->sender,(req_buy_tickets_t*) msg->content);
             break;
         default: 
-			r = (char*)res_error(ERR_INVALID_COMMAND);
-			memcpy(res.content,r,*((uint32_t*)(r+sizeof(uint8_t))));
+			res_error(ipc, msg->sender,ERR_INVALID_COMMAND);
             break;
     }
 	//Creamos un ipc nuevo entre el worker y el cliente, cuyo id es el pid del cliente guardado en el msg.
-  	
-	ipc = ipc_connect(msg->sender);
-	printf("Conecto worker con ipc_res id: %d\n",ipc->id);  
+  	printf("%d\n",(int)command );
 	
-	res.sender=getpid();
-    ipc_send(ipc, msg->sender, &res, sizeof(res));
 }
 
 static uint8_t command_interpreter(char* cmd) {
-    return *((uint8_t *) cmd ); //all de request structs begin with a uint8_t type which represents de type of request!
+    return ((req_fixture_t*)cmd)->type; //all de request structs begin with a uint8_t type which represents de type of request!
 }

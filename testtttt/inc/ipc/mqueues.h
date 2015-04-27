@@ -29,7 +29,7 @@ typedef struct{
 
 
 ipc_t *ipc_listen(int pid);
-ipc_t *ipc_connect(int pid);
+ipc_t *ipc_connect(int pid,int server_id);
 
 ipc_t* ipc_open(int pid);
 void ipc_close(ipc_t *ipc);

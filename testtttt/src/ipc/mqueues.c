@@ -1,21 +1,16 @@
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
+#include <unistd.h>
 #include "../../inc/ipc/mqueues.h"
 
 
-ipc_t *ipc_connect(int pid){
+ipc_t *ipc_connect(int pid,int server_id){
 
-	int msqid;
-    ipc_t* msq = malloc(sizeof(ipc_t));
-
-    if ((msqid = msgget(pid, 0666)) == -1) { /* connect to the queue */
-        perror("msgget");
-		fprintf(stderr, "Ocurrio el error %s en ipc_connect\n",strerror(errno));		
-	return NULL;
-    }
+    ipc_t* msq = ipc_open(pid); //alloco la estructura y seteo el id de la queue
 	
-    msq->queue = msqid;
+    msq->server_id=server_id;
+    msq->id=getpid();
 
     return msq;
 }
@@ -33,14 +28,14 @@ ipc_t* ipc_open(int pid){
 		return NULL;
     }
 
-    msq->id = msqid;
+    msq->queue = msqid;
 
     return msq;
 }
 
 void ipc_close(ipc_t *ipc){
 
-    if (msgctl(ipc->id, IPC_RMID, NULL) == -1) {
+    if (msgctl(ipc->queue, IPC_RMID, NULL) == -1) {
         perror("msgctl");
 		fprintf(stderr, "Ocurrio el error %s en ipc_close\n",strerror(errno));		
     }
@@ -66,7 +61,7 @@ void ipc_send(ipc_t *ipc, uint16_t recipient, void *message, uint16_t len){
 		fprintf(stderr, "Ocurrio el error %s en ipc_send\n",strerror(errno));		
 		exit(1);
 	}
-
+	free(buf);
 
 }
 
