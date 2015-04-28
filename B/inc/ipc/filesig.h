@@ -26,5 +26,5 @@ ipc_t *ipc_create(pid_t destination_process);
 ipc_t *ipc_listen(pid_t destination_process);
 ipc_t *ipc_connect(pid_t destination_process);
 void ipc_close(ipc_t *ipc);
-void ipc_send(message_t *msg, ipc_t *ipc);
+void ipc_send(ipc_t *ipc, uint16_t recipient, void *message, uint16_t len);
 message_t *ipc_read(ipc_t *ipc);

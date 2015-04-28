@@ -11,21 +11,22 @@
 
 #define LINE_LENGTH 100 /* including '/n' */
 #define MAX_MESSAGES 5
-#define MESSAGE_SIZE LINE_LENGTH * 3 /* 3 is the message line number */
+#define MESSAGE_SIZE 130 
 
 #define START 0
 #define SPACE 1
 #define END 2
 
+#define MSG_SIZE 1024*10
 #define SEPARATOR_CHARACTER '-'
 #define SERVER "../system_files/server-data.txt"
 
 typedef unsigned short uint16_t;
 
 typedef struct {
-	uint16_t length;
-    char *content;
-    pid_t from;
+	uint16_t sender;
+	uint16_t content_len;
+	char content[];
 } message_t;
 
 void itoa ( int value, char * str );
