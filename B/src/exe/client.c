@@ -1,10 +1,12 @@
 #include "../../inc/front.h"
 #include "../../inc/utils.h"
 
-#define clean while(getchar()!='\n')
 
 static void showCinemaTitle();
 static int showMenu();
+
+
+
 
 int main(int argc, char** argv) {
 	int action;
@@ -80,7 +82,5 @@ static int showMenu(){
 
   return choice;
 }
-
-
 
 

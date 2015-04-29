@@ -21,8 +21,6 @@ void actionBuyTickets(ipc_t *ipc) {
 	ticket_t last = askPosition("Please choose the last position you want to buy. [ROW COL]");
 	printf("%d\n",last);
 	req_buy_tickets(ipc,movie_id-1,first,last);
-	handle_res();
-}
 
 void actionPrintCinema(ipc_t *ipc) {
 	uint16_t movie_id;

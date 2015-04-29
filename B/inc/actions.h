@@ -68,5 +68,6 @@ typedef struct {
 void req_print_cinema(ipc_t *ipc, uint16_t movie_id);
 void res_print_cinema(ipc_t* ipc, database_t *db, uint16_t sender,req_print_cinema_t *req);
 void hand_print_cinema(res_print_cinema_t *res);
+int get_server_pid();
 
 #endif
