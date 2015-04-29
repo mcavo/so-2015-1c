@@ -5,6 +5,15 @@
 
 ipc_t* ipc_listen(int pid){
 
+	ipc_t* sock = ipc_open(pid);
+
+	if (listen(sock->sock, 5) == -1) {
+		perror("listen");
+		fprintf(stderr, "Ocurrio el error %s en ipc_open\n",strerror(errno));		
+		exit(1);
+	}
+
+	return sock;
 }
 
 
@@ -34,8 +43,8 @@ ipc_t *ipc_connect(int pid){
 	}
 
 
-	//sock->server_id=get_server_pid();
-	//sock->id=pid;
+	sock->server_id=pid;
+	sock->id=getpid();
 
         sock->sock = s;	
 	
@@ -69,16 +78,12 @@ ipc_t* ipc_open(int pid){
 		exit(1);
 	}
 
-	if (listen(s, 5) == -1) {
-		perror("listen");
-		fprintf(stderr, "Ocurrio el error %s en ipc_open\n",strerror(errno));		
-		exit(1);
-	}
 	
-	//sock->server_id=get_server_pid();
-	//sock->id=pid;
+	
+	sock->server_id=getpid();
+	sock->id=getpid();
 
-        sock->sock = s;	
+        sock->sock = s;
 	return sock;
 
 }
@@ -92,7 +97,7 @@ void ipc_send(ipc_t *ipc, uint16_t recipient, void *message, uint16_t len){
 
 	message_t* msg = malloc(sizeof(message_t)+len);
 	
-	msg->sender = getpid();
+	msg->sender = ipc->id;
 	msg->content_len = len;
 	memcpy(&(msg->content), message, len);
 	printf("message en ipc_send: %d\n", *((uint8_t*)message));
@@ -105,6 +110,8 @@ void ipc_send(ipc_t *ipc, uint16_t recipient, void *message, uint16_t len){
 	}
 }
 
+
+
 message_t* ipc_receive(ipc_t *ipc){
 	
 	struct sockaddr_un remote;
@@ -112,8 +119,8 @@ message_t* ipc_receive(ipc_t *ipc){
 	static char buf[MSG_SIZE];
 	
 	t = sizeof(remote);
-	
-	if ((s2 = accept(ipc->sock, (struct sockaddr *)&remote, &t)) == -1) {
+	printf("t en ipc_receive: %d\n",t);
+	if ((s2 = accept(ipc->sock, (struct sockaddr *)(&remote), &t)) == -1) {
 		perror("accept");
 		fprintf(stderr, "Ocurrio el error %s en ipc_receive\n",strerror(errno));				
 		exit(1);
