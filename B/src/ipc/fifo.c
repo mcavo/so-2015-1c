@@ -75,7 +75,7 @@ void ipc_close(ipc_t *ipc) {
 
 void ipc_send(ipc_t *ipc, uint16_t recipient, void *message, uint16_t len) {
 	printf("send\n");
-	message_t *msg = malloc(MESSAGE_SIZE); //TODO: el máximo debería ser más chico.
+	message_t *msg = calloc(MESSAGE_SIZE, sizeof(char)); //TODO: el máximo debería ser más chico.
 	msg -> sender = getpid();
 	msg -> content_len = len;
 	memcpy(msg->content, message, len);

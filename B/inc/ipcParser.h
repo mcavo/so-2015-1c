@@ -11,7 +11,7 @@
 
 #define LINE_LENGTH 100 /* including '/n' */
 #define MAX_MESSAGES 5
-#define MESSAGE_SIZE 130 
+#define MESSAGE_SIZE 500 
 
 #define START 0
 #define SPACE 1
