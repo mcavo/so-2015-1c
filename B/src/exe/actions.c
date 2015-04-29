@@ -7,7 +7,7 @@ void res_error(ipc_t *ipc,uint16_t sender, int32_t code) {
 		.code = code
 	};
 	ipc_send(ipc, sender, &res, sizeof(res));
-
+	ipc_close(ipc);
 }
 
 
@@ -42,6 +42,7 @@ void req_fixture(ipc_t *ipc) {
 	};
 	printf("direccion del req original req_fixture: %d\n", (int)(&req));
 	ipc_send(ipc, ipc->server_id, &req, sizeof(req));
+
 }
 
 void res_fixture(ipc_t *ipc, database_t *db,uint16_t sender){
@@ -55,7 +56,7 @@ void res_fixture(ipc_t *ipc, database_t *db,uint16_t sender){
     ipc_send(ipc, sender, res, res_size);
     printf("%d\n",(int)res);
     free(res);
-
+    ipc_close(ipc);
 }
 
 void hand_fixture(res_fixture_t *res) {
@@ -88,7 +89,7 @@ void res_buy_tickets(ipc_t *ipc, database_t *db,uint16_t sender, req_buy_tickets
 		.type = ACTION_BUY_TICKETS
 	};
 	ipc_send(ipc, sender, &res, sizeof(res));
-
+	ipc_close(ipc);
 }
 
 void hand_buy_tickets(res_buy_tickets_t *res) {
@@ -141,30 +142,6 @@ void hand_print_cinema(res_print_cinema_t *res) {
 		printf("%d ",i);
 	}
 	printf("\n\n");
-}
-
-int get_server_pid(){
-
-	FILE *fp;
-	char str[60];
-	int pid;
-	fp = fopen("serverPid.txt" , "r");
-
-	if(fp == NULL) 
-	{
-	perror("Error opening file");
-		return -1;
-	}
-
-	if( fgets (str, 60, fp)==NULL ) 
-		return -1;
-
-	pid= atoi(str);
-
-	fclose(fp);
-
-	return pid;
-   
 }
 
 

@@ -1,10 +1,12 @@
 #include "../../inc/front.h"
 
-#define clean while(getchar()!='\n')
 
 static void showCinemaTitle();
 
 static int showMenu();
+
+
+
 
 int main(int argc, char** argv) {
 
@@ -19,24 +21,28 @@ int main(int argc, char** argv) {
 	showCinemaTitle();
 
 	ipc_t *ipc = ipc_connect(server_pid);
-	ipc_t *ipc_res;
+	//REMOVE: ipc_t *ipc_res;
 	int pid=getpid();
+
 
 	while ( (action = showMenu())!=ACTION_EXIT ) {
 
-		ipc_res = ipc_open(pid);
-		//ipc_res = listen(pid);
-		printf("Cliente abre ok ipc_res id: %d, pid_cliente: %d\n",ipc_res->id ,pid);  
+		//REMOVE: ipc_res = ipc_listen(pid);
+		//REMOVE: printf("Cliente abre ok ipc_res id: %d, pid_cliente: %d\n",ipc_res->id ,pid); 
+		printf("Cliente abre ok pid_cliente: %d\n", pid); 
 
 		switch (action) {
 			case ACTION_SHOW_FIXTURE:				
-				actionShowFixture(ipc, ipc_res);
+				//REMOVE: actionShowFixture(ipc, ipc_res);
+				actionShowFixture(ipc);
 				break;
 			case ACTION_BUY_TICKETS:
-				actionBuyTickets(ipc, ipc_res);
+				//REMOVE: actionBuyTickets(ipc, ipc_res);
+				actionBuyTickets(ipc);
 				break;
 			case ACTION_PRINT_CINEMA:
-				actionPrintCinema(ipc, ipc_res);
+				//REMOVE: actionPrintCinema(ipc, ipc_res);
+				actionPrintCinema(ipc);
 			default:
 				printf("Invalid option.\n");
 				break;
@@ -85,11 +91,8 @@ static int showMenu(){
   Please, select your choice:\n\
     ");
   scanf("%d", &choice);
-  clean;
 
   return choice;
 }
-
-
 
 

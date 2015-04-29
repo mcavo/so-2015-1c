@@ -18,8 +18,6 @@
 #define TICKET_AVAILABLE "\e[1;32m" //GREEN
 #define TICKET_BOUGHT "\e[1;31m" //RED
 
-int get_server_pid();
-
 typedef struct {
 	uint8_t type;
 	int32_t code;
@@ -70,5 +68,6 @@ typedef struct {
 void req_print_cinema(ipc_t *ipc, uint16_t movie_id);
 void res_print_cinema(ipc_t* ipc, database_t *db, uint16_t sender,req_print_cinema_t *req);
 void hand_print_cinema(res_print_cinema_t *res);
+int get_server_pid();
 
 #endif

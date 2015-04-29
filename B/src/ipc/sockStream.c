@@ -3,6 +3,11 @@
 
 
 
+ipc_t* ipc_listen(int pid){
+
+}
+
+
 ipc_t *ipc_connect(int pid){
 
 	int s, len;

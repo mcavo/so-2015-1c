@@ -36,7 +36,7 @@ int main(void)
     save_server_pid(server_pid);
 
     //Creamos el ipc unico, cuyo id es el pid del servidor.
-    ipc = ipc_open(server_pid); 	
+    ipc = ipc_listen(server_pid); 	
 	
 	printf("server_pid: %d ipc_id: %d\n", server_pid,ipc->id); 
 
@@ -77,7 +77,7 @@ static void worker(message_t * msg) {
     ipc_t* ipc;
     ipc = ipc_connect(msg->sender);
     printf("Conecto worker con ipc_res id: %d\n",ipc->id); 
-    
+
     printf("%d\n",(int)command );
 	switch (command) {
         case ACTION_SHOW_FIXTURE: 
@@ -96,7 +96,6 @@ static void worker(message_t * msg) {
     }
 	//Creamos un ipc nuevo entre el worker y el cliente, cuyo id es el pid del cliente guardado en el msg.
   	printf("%d\n",(int)command );
-
 	
 }
 

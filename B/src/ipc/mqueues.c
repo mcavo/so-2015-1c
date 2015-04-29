@@ -2,11 +2,11 @@
 #include <sys/ipc.h>
 #include <sys/msg.h>
 #include <unistd.h>
-
+#include "../../inc/actions.h"
 #include "../../inc/ipc/mqueues.h"
 
 
-ipc_t *ipc_connect(int pid){
+ipc_t* ipc_connect(int pid){
 
     int msqid;
     ipc_t* msq = malloc(sizeof(ipc_t));
@@ -23,6 +23,10 @@ ipc_t *ipc_connect(int pid){
     msq->id=getpid();
 
     return msq;
+}
+
+ipc_t* ipc_listen(int pid){
+	return ipc_connect(pid);
 }
 
 //Lo llama el server por ejemplo, para crear un unico canal por donde recibe las peticiones de los clientes.
@@ -61,8 +65,8 @@ void ipc_send(ipc_t *ipc, uint16_t recipient, void *message, uint16_t len){
 
 message_t* ipc_receive(ipc_t *ipc){
 
-		static char buf[MSG_SIZE];
-		int nbytes;
+	static char buf[MSG_SIZE];
+	int nbytes;
 
 	    if ((nbytes = msgrcv(ipc->queue, &buf, MSG_SIZE, ipc->id, 0)) == -1) {
             perror("msgrcv");
