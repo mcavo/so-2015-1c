@@ -1,15 +1,12 @@
 #include "../inc/actions.h"
 
-
 void res_error(ipc_t *ipc,uint16_t sender, int32_t code) {
 	res_error_t res = {
 		.type = ACTION_ERROR,
 		.code = code
 	};
 	ipc_send(ipc, sender, &res, sizeof(res));
-	ipc_close(ipc);
 }
-
 
 void hand_error(res_error_t *err) {
 	switch (err->code) {
@@ -34,38 +31,12 @@ void hand_error(res_error_t *err) {
 	}
 }
 
-int get_server_pid(){
-
-	FILE *fp;
-	char str[60];
-	int pid;
-	fp = fopen("serverPid.txt" , "r");
-
-	if(fp == NULL) 
-	{
-	perror("Error opening file");
-		return -1;
-	}
-
-	if( fgets (str, 60, fp)==NULL ) 
-		return -1;
-
-	pid= atoi(str);
-
-	fclose(fp);
-
-	return pid;
-   
-}
-
-
 void req_fixture(ipc_t *ipc) {
 	req_fixture_t req = {
 		.type = ACTION_SHOW_FIXTURE
 	};
 	printf("direccion del req original req_fixture: %d\n", (int)(&req));
 	ipc_send(ipc, ipc->server_id, &req, sizeof(req));
-
 }
 
 void res_fixture(ipc_t *ipc, database_t *db,uint16_t sender){
@@ -76,15 +47,14 @@ void res_fixture(ipc_t *ipc, database_t *db,uint16_t sender){
 	res->type = ACTION_SHOW_FIXTURE;
 	res->count = db->count;
 	memcpy(res->movies, db->movies, fix_size);
-    ipc_send(ipc, sender, res, res_size);
-    printf("%d\n",(int)res);
-    free(res);
-    ipc_close(ipc);
+	ipc_send(ipc, sender, res, res_size);
+	printf("%d\n",(int)res);
+	free(res);
 }
 
 void hand_fixture(res_fixture_t *res) {
 	int i;
-	printf("  Fixture\n  --------\n");
+	printf("\n\n  Fixture\n --------\n");
 	for (i = 0; i < res->count; i++) {
 		printf("  %d. %s\n",i+1,res->movies[i].name);
 	}
@@ -98,7 +68,6 @@ void req_buy_tickets(ipc_t *ipc, uint16_t movie_id, ticket_t first, ticket_t las
 		.first = first,
 		.last = last
 	};
-	
 	ipc_send(ipc, ipc->server_id, &req, sizeof(req));
 }
 
@@ -112,21 +81,17 @@ void res_buy_tickets(ipc_t *ipc, database_t *db,uint16_t sender, req_buy_tickets
 		.type = ACTION_BUY_TICKETS
 	};
 	ipc_send(ipc, sender, &res, sizeof(res));
-	ipc_close(ipc);
 }
 
 void hand_buy_tickets(res_buy_tickets_t *res) {
 	printf("  %sSuccesful operation!%s\n",ANSI_C_OK_COLOR,ANSI_C_RESET_COLOR);
 }
 
-
-
 void req_print_cinema(ipc_t *ipc, uint16_t movie_id) {
 	req_print_cinema_t req = {
 		.type = ACTION_PRINT_CINEMA,
 		.movie_id = movie_id
 	};
-	
 	ipc_send(ipc, ipc->server_id, &req, sizeof(req));
 }
 
@@ -146,12 +111,10 @@ void res_print_cinema(ipc_t *ipc, database_t *db, uint16_t sender, req_print_cin
 	}
 }
 
-
 void hand_print_cinema(res_print_cinema_t *res) {
 	int i;
 	char row = 'A';
 	char * color;
-
 	for (i=0 ; i < MOVIE_MAX_PLACES ; i++) {
 		if(i%MOVIE_MAX_COL==0)
 			printf("\n  %c\t",row++);
@@ -162,9 +125,7 @@ void hand_print_cinema(res_print_cinema_t *res) {
 	}
 	printf("\n\t");
 	for (i=0 ; i < MOVIE_MAX_COL ; i++) {
-		printf("%d ",i);
+		printf("%d ",i+1);
 	}
 	printf("\n\n");
 }
-
-

@@ -11,7 +11,7 @@
 #elif defined(IPC_SOCKETS)
 	#include "ipc/sockets.h"
 
-#elif defined(IPC_SHMEM)
+#elif defined(IPC_SHM)
 	#include "ipc/shm.h"
 
 #elif defined(IPC_MQUEUES)

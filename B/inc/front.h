@@ -6,8 +6,8 @@
 #include <string.h>
 #include <errno.h>
 
-void actionShowFixture(ipc_t *ipc, ipc_t *ipc_res);
-void actionBuyTickets(ipc_t *ipc, ipc_t *ipc_res);
-void actionPrintCinema(ipc_t *ipc, ipc_t *ipc_res);
+void actionShowFixture(ipc_t *ipc);
+void actionBuyTickets(ipc_t *ipc);
+void actionPrintCinema(ipc_t *ipc);
 
 #endif
