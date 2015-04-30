@@ -18,7 +18,7 @@
 #include "../utils.h"
 
 #define CLIENT_CAN_WRITE 1
-#define SERVER_CAN_READ	 2
+#define SERVER_CAN_READ  2
 #define SERVER_CAN_WRITE 1
 #define CLIENT_CAN_READ  2
 
