@@ -6,7 +6,10 @@
 #include <stdint.h>
 #include <string.h>
 #include <errno.h>
-#include "../ipc.h"
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+#include <unistd.h>
 
 #define MSG_SIZE 1024*10
 

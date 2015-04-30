@@ -1,41 +1,46 @@
-#include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/msg.h>
-#include <unistd.h>
-
 #include "../../inc/ipc/mqueues.h"
+#include "../../inc/utils.h"
 
+ipc_t *ipc_listen(int pid) {
+	ipc_t * msq = ipc_open(pid);
+	msq->server_id=get_server_pid();
+	msq->id=getpid();
+	return msq;
+}
 
 ipc_t *ipc_connect(int pid){
-
-    int msqid;
-    ipc_t* msq = malloc(sizeof(ipc_t));
-
-    if ((msqid = msgget(pid, 0666 | IPC_CREAT)) == -1) {
-        perror("msgget");
+	int msqid;
+	ipc_t* msq = malloc(sizeof(ipc_t));
+	if ((msqid = msgget(pid, 0666)) == -1) {
+		perror("msgget");
 		fprintf(stderr, "Ocurrio el error %s en ipc_open\n",strerror(errno));		
 		return NULL;
-    }
-
-    msq->queue = msqid;
-	
-    msq->server_id=get_server_pid();
-    msq->id=getpid();
-
-    return msq;
+  }
+  msq->queue = msqid;
+	msq->server_id=get_server_pid();
+	msq->id=getpid();
+	return msq;
 }
 
 //Lo llama el server por ejemplo, para crear un unico canal por donde recibe las peticiones de los clientes.
 ipc_t* ipc_open(int pid){
-
-	return ipc_connect(pid);
+	int msqid;
+	ipc_t* msq = malloc(sizeof(ipc_t));
+	if ((msqid = msgget(pid, 0666 | IPC_CREAT)) == -1) {
+		perror("msgget");
+		fprintf(stderr, "Ocurrio el error %s en ipc_open\n",strerror(errno));		
+		return NULL;
+  }
+  msq->queue = msqid;
+  return msq;
 }
 
 void ipc_close(ipc_t *ipc){
-
-    if (msgctl(ipc->queue, IPC_RMID, NULL) == -1) {
-        perror("msgctl");
-		fprintf(stderr, "Ocurrio el error %s en ipc_close\n",strerror(errno));		
+	if(ipc->id==ipc->server_id) {
+	    if (msgctl(ipc->queue, IPC_RMID, NULL) == -1) {
+	        perror("msgctl");
+			fprintf(stderr, "Ocurrio el error %s en ipc_close\n",strerror(errno));
+		}	
     }
     free(ipc);
 }
