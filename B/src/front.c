@@ -51,6 +51,7 @@ static ticket_t getPosition (char row, int col) {
 static void handle_res() {
 	ipc_t *ipc = ipc_listen(getpid());
 	message_t *msg = ipc_receive(ipc);
+	printf("obtuve mi respuesta\n");
 	uint8_t t = (uint8_t) (*(msg->content));
 	switch (t) {
 		case ACTION_SHOW_FIXTURE:
