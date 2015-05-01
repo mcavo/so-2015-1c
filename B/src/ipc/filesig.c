@@ -65,22 +65,24 @@ void ipc_send(ipc_t *ipc, uint16_t recipient, void *message, uint16_t len) {
 	msg -> sender = getpid();
 	printf("client pid:%d\n", msg -> sender);
 	msg -> content_len = len;
+	printf("content_length escritos: %d\n", len);
 	memcpy(msg->content, message, len);
 	write_message(msg, ipc -> fd);
 	/* send signal to weak up de destination process */
 	free(msg);
 	printf("Voy a mandar la señal a: %d\n", ipc -> server_id);
-	sleep(10);
+
 	kill(ipc -> server_id, SIGUSR1);
 }
 /* read and lock the file craeted with the ipc information */
 message_t *ipc_receive(ipc_t *ipc) {
 	while(!flock_write(ipc -> fd))
 		;
-	message_t *msg = (message_t*) calloc(1, sizeof(message_t));
+	message_t *msg = (message_t*) calloc(1, MESSAGE_SIZE);
 	printf("reading message\n");
 	//printf("%d\n", fd);
 	read_message(msg, ipc -> fd);
+	printf("sender: %d\n", msg -> sender);
 	printf("terminé de leer y retorno\n");
 	return msg;
 }
@@ -162,6 +164,7 @@ static void read_message(message_t *msg, int fd) {
 	msg->sender = ((uint16_t *)aux)[0];
 	printf("sender id: %d\n", msg -> sender);
 	msg->content_len = ((uint16_t *)aux)[1];
+	printf("message_length leidos: %d\n", msg->content_len);
 	msg = realloc(msg, sizeof(uint16_t)*2 + msg->content_len);
 	memcpy(msg -> content, aux + sizeof(uint16_t)*2, msg->content_len);
 	free(aux);
@@ -185,7 +188,7 @@ static void write_message(message_t *msg, int fd) {
 	//TODO: falta checkear que tenga lugar para escribir
 	int tail_pointer;
 	header_t *header = read_header(fd);
-	printf("%d\n", header -> write);
+	printf("header_write: %d\n", header -> write);
 	while((header -> write) == FALSE){
 		sigset_t sigset;
 		sigemptyset(&sigset); //TODO: ver como evitar que le lleguen las señales
