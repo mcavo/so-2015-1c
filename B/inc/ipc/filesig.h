@@ -20,10 +20,10 @@ typedef struct {
 } ipc_t;
 
 typedef struct {
-	size_t head; /* start at 1 */
-	size_t tail; /* start at 1 */
-	BOOL read;
-	BOOL write;
+	size_t head; /* start at 0 */
+	size_t tail; /* start at 0 */
+	// BOOL read;
+	// BOOL write;
 } header_t;
 
 ipc_t *ipc_create(pid_t destination_process);
