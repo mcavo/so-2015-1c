@@ -12,6 +12,7 @@
 
 #define SOCK_PATH "mysocket"
 #define MSG_SIZE 1024*10
+#define MESSAGE_SIZE 500
 
 
 typedef struct {
