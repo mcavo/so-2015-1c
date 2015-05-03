@@ -3,11 +3,8 @@
 
 #include <stdint.h>
 
-
-
-
 #if defined(IPC_FILESIGN)
-	#include "ipc/filesign.h"
+	#include "ipc/filesig.h"
 
 #elif defined(IPC_SOCKETS)
 	#include "ipc/sockStream.h"

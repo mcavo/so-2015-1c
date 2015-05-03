@@ -96,7 +96,7 @@ message_t* ipc_receive(ipc_t *ipc){
 	int t,s2,nbytes;
 	char *buf = calloc(MESSAGE_SIZE, sizeof(char));	
 	t = sizeof(remote);
-	if ((s2 = accept(ipc->sock, (struct sockaddr *)(&remote), &t)) == -1) {
+	if ((s2 = accept(ipc->sock, (struct sockaddr *)(&remote), (socklen_t *)&t)) == -1) {
 		perror("accept");
 		fprintf(stderr, "Ocurrio el error %s en ipc_receive\n",strerror(errno));				
 		exit(1);

@@ -62,7 +62,7 @@ typedef struct {
 
 typedef struct {
 	uint8_t type;
-	uint8_t tickets[];
+	uint8_t tickets[MOVIE_MAX_PLACES];
 } res_print_cinema_t;
 
 void req_print_cinema(ipc_t *ipc, uint16_t movie_id);

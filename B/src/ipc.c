@@ -1,7 +1,7 @@
 #include "../inc/ipc.h"
 
 #if defined(IPC_FILESIGN)
-	#include "ipc/filesign.c"
+	#include "ipc/filesig.c"
 
 #elif defined(IPC_SOCKETS)
 	#include "ipc/sockStream.c"
