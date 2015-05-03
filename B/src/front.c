@@ -17,9 +17,7 @@ void actionBuyTickets(ipc_t *ipc) {
 	scanf("%d",(int*)(&movie_id));
 	CLEAN_BUFFER
 	ticket_t first = askPosition("Please choose the first position you want to buy. [ROW COL]");
-	printf("%d\n",first);
 	ticket_t last = askPosition("Please choose the last position you want to buy. [ROW COL]");
-	printf("%d\n",last);
 	req_buy_tickets(ipc,movie_id-1,first,last);
 	handle_res();
 }
