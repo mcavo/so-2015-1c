@@ -32,6 +32,7 @@ void hand_error(res_error_t *err) {
 }
 
 void req_fixture(ipc_t *ipc) {
+	printf("req_fixture\n");
 	req_fixture_t req = {
 		.type = ACTION_SHOW_FIXTURE
 	};
@@ -40,6 +41,7 @@ void req_fixture(ipc_t *ipc) {
 }
 
 void res_fixture(ipc_t *ipc, database_t *db,uint16_t sender){
+	printf("res_fixture\n");
 	printf("%d\n",db->count );
 	size_t fix_size = sizeof(movie_t) * db->count;
 	size_t res_size = sizeof(res_fixture_t) + fix_size;

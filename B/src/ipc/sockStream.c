@@ -66,7 +66,7 @@ ipc_t* ipc_open(int pid){
 
 	local.sun_family = AF_UNIX;
 	strcpy(local.sun_path, path);
-	//unlink(local.sun_path);
+	unlink(local.sun_path);
 	len = strlen(local.sun_path) + sizeof(local.sun_family);
 
 	if (bind(s, (struct sockaddr *)&local, len) == -1) {
@@ -84,12 +84,12 @@ ipc_t* ipc_open(int pid){
 
 void ipc_close(ipc_t *ipc){
 	printf("me están cerrando...\n");
-	//close(ipc->sock);
+	close(ipc->sock);
 	free(ipc);
 }
 
 void ipc_send(ipc_t *ipc, uint16_t recipient, void *message, uint16_t len){
-
+	printf("send\n");
 	//message_t* msg = malloc(sizeof(message_t)+len);
 	message_t *msg = calloc(MESSAGE_SIZE, sizeof(char));
 	msg->sender = ipc->id;
@@ -102,12 +102,17 @@ void ipc_send(ipc_t *ipc, uint16_t recipient, void *message, uint16_t len){
 	printf("msg size: %d\n", sizeof(msg));
 	printf("content: %s\n", msg->content);
 	//printf("message en ipc_send: %d\n", *((uint8_t*)message));
-	//printf("msg.content en ipc_send: %d\n", (uint8_t)(msg->content)); 
-	if (send(ipc->sock, msg, MESSAGE_SIZE, 0) <= 0){
+	//printf("msg.content en ipc_send: %d\n", (uint8_t)(msg->content));
+	printf("voy a enviar\n"); 
+	int i = send(ipc->sock, msg, MESSAGE_SIZE, 0);
+	printf("%d\n", i);
+	if ( i <= 0){
+		printf("Ocurrio el error %s en ipc_send\n",strerror(errno));
 		perror("send");
-		fprintf(stderr, "Ocurrio el error %s en ipc_send\n",strerror(errno));
+		//fprintf(stderr, "Ocurrio el error %s en ipc_send\n",strerror(errno));
 		exit(1);
 	}
+	printf("estoy terminando el send\n");
 }
 
 
