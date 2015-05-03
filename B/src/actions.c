@@ -98,12 +98,11 @@ void res_print_cinema(ipc_t *ipc, database_t *db, uint16_t sender, req_print_cin
 		res_error(ipc,sender,error);
 	}
 	else {
-		int size = sizeof(uint8_t)+sizeof(ticket_t)*MOVIE_MAX_PLACES;
 		res_print_cinema_t res;
 		res.type = ACTION_PRINT_CINEMA;
-		memcpy(res.tickets,cinema,MOVIE_MAX_PLACES);
+		memcpy(res.tickets,cinema,MOVIE_MAX_PLACES*sizeof(ticket_t));
 		free(cinema);
-		ipc_send(ipc, sender, &res, size);
+		ipc_send(ipc, sender, &res, sizeof(res));
 	}
 }
 
