@@ -81,7 +81,6 @@ static void worker(message_t * msg) {
 			res_error(ipc, msg->sender,ERR_INVALID_COMMAND);
 			break;
 	}
-	printf("estoy por cerrar ipc de respuesta\n");
 	ipc_close(ipc);
 	//Creamos un ipc nuevo entre el worker y el cliente, cuyo id es el pid del cliente guardado en el msg.
 	printf("%d\n",(int)command );

@@ -38,7 +38,6 @@ void req_fixture(ipc_t *ipc) {
 	req_fixture_t req = {
 		.type = ACTION_SHOW_FIXTURE
 	};
-	printf("direccion del req original req_fixture: %d\n", (int)(&req));
 	ipc_send(ipc, ipc->server_id, &req, sizeof(req)); //REVISAR: está mal el segundo parámetro. debería ser mi pid
 }
 
@@ -54,7 +53,7 @@ void res_fixture(ipc_t *ipc, database_t *db,uint16_t sender){
     printf("%d\n",(int)res);
     printf("%s\n", );
     free(res);
-    //ipc_close(ipc);
+    ipc_close(ipc);
 }
 
 void hand_fixture(res_fixture_t *res) {
@@ -78,7 +77,6 @@ void req_buy_tickets(ipc_t *ipc, uint16_t movie_id, ticket_t first, ticket_t las
 }
 
 void res_buy_tickets(ipc_t *ipc, database_t *db,uint16_t sender, req_buy_tickets_t *req) {
-	printf("analizo el request del cliente\n");
 	int error = db_buy_tickets(db,req->movie_id,req->first,req->last);
 	if(error<0) {
 		res_error(ipc,sender, error);

@@ -8,7 +8,6 @@ ipc_t *ipc_listen(int pid) {
 	return msq;
 }
 
-<<<<<<< HEAD
 ipc_t *ipc_connect(int pid){
 	int msqid;
 	ipc_t* msq = malloc(sizeof(ipc_t));
@@ -21,10 +20,6 @@ ipc_t *ipc_connect(int pid){
 	msq->server_id=get_server_pid();
 	msq->id=getpid();
 	return msq;
-}
-
-ipc_t* ipc_listen(int pid){
-	return ipc_connect(pid);
 }
 
 //Lo llama el server por ejemplo, para crear un unico canal por donde recibe las peticiones de los clientes.
