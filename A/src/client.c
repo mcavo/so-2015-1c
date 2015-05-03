@@ -55,7 +55,6 @@ void actionBuyTickets() {
 }
 
 void printMsg ( int code ) {
-    char * msg;
     char * ERROR_ANSI_COLOR = "\e[1;31m";
     char * SUCCESFULL_ANSI_COLOR = "\e[1;34m";
     char * RESET_ANSI_COLOR = "\e[1;0m";

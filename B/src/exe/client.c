@@ -17,7 +17,6 @@ int main(int argc, char** argv) {
 	}
 	showCinemaTitle();
 	ipc_t *ipc = ipc_connect(server_pid);
-	int pid=getpid();
 	while ( (action = showMenu())!=ACTION_EXIT ) {
 		
 		switch (action) {
