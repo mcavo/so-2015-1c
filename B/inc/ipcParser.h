@@ -31,6 +31,3 @@ typedef struct {
 
 void itoa ( int value, char * str );
 char *get_fname(pid_t ipc_pid);
-// char *parse_line_string(char *msg);
-// void parse_string(char* line, char *str);
-// char *parse_line_int(int int_msg);

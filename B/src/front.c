@@ -51,13 +51,9 @@ static ticket_t getPosition (char row, int col) {
 static void handle_res() {
 	ipc_t *ipc = ipc_listen(getpid());
 	message_t *msg = ipc_receive(ipc);
-	printf("obtuve mi respuesta\n");
 	uint8_t t = (uint8_t) (*(msg->content));
-	printf("msg->content: %d\n", t);
-	printf("msg->sender: %d\n", msg->sender);
 	switch (t) {
 		case ACTION_SHOW_FIXTURE:
-			printf("Voy a manejar\n");
 			hand_fixture((res_fixture_t*) (msg->content));
 			break;
 		case ACTION_BUY_TICKETS:
@@ -70,7 +66,6 @@ static void handle_res() {
 			hand_error((res_error_t*) (msg->content));
 			break;
 	}
-	printf("Llegué al final del handle_res\n");
 	free(msg);
 	ipc_close(ipc);
 }

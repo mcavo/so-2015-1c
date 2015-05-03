@@ -32,17 +32,12 @@ void hand_error(res_error_t *err) {
 }
 
 void req_fixture(ipc_t *ipc) {
-	printf("req_fixture\n");
 	req_fixture_t req = {
 		.type = ACTION_SHOW_FIXTURE
-	};
-	printf("direccion del req original req_fixture: %d\n", (int)(&req));
-	ipc_send(ipc, ipc->server_id, &req, sizeof(req));
+	};ipc_send(ipc, ipc->server_id, &req, sizeof(req));
 }
 
 void res_fixture(ipc_t *ipc, database_t *db,uint16_t sender){
-	printf("res_fixture\n");
-	printf("%d\n",db->count );
 	size_t fix_size = sizeof(movie_t) * db->count;
 	size_t res_size = sizeof(res_fixture_t) + fix_size;
 	res_fixture_t *res = (res_fixture_t*) malloc(res_size);
@@ -50,7 +45,6 @@ void res_fixture(ipc_t *ipc, database_t *db,uint16_t sender){
 	res->count = db->count;
 	memcpy(res->movies, db->movies, fix_size);
 	ipc_send(ipc, sender, res, res_size);
-	printf("%d\n",(int)res);
 	free(res);
 }
 
