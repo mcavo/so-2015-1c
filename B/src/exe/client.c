@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
 	ipc_t *ipc = ipc_connect(server_pid);
 	int pid=getpid();
 	while ( (action = showMenu())!=ACTION_EXIT ) {
-		printf("Cliente abre ok pid_cliente: %d\n", pid);
+		
 		switch (action) {
 			case ACTION_SHOW_FIXTURE:
 				actionShowFixture(ipc);
