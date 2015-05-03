@@ -22,7 +22,6 @@ int main(void) {
 	message_t* cmd;
 	server_pid = getpid();
 	ipc_t *ipc;
-
 	//Dejamos en un archivo el pid del servidor para que los clientes lo tomen y se comuniquen.
 	save_server_pid(server_pid);
 
@@ -82,6 +81,7 @@ static void worker(message_t * msg) {
 			res_error(ipc, msg->sender,ERR_INVALID_COMMAND);
 			break;
 	}
+	ipc_close(ipc);
 	//Creamos un ipc nuevo entre el worker y el cliente, cuyo id es el pid del cliente guardado en el msg.
 	printf("%d\n",(int)command );
 }

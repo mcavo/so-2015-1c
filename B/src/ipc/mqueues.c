@@ -66,8 +66,8 @@ void ipc_send(ipc_t *ipc, uint16_t recipient, void *message, uint16_t len){
 
 message_t* ipc_receive(ipc_t *ipc){
 
-		static char buf[MSG_SIZE];
-		int nbytes;
+	static char buf[MSG_SIZE];
+	int nbytes;
 
 	    if ((nbytes = msgrcv(ipc->queue, &buf, MSG_SIZE, ipc->id, 0)) == -1) {
             perror("msgrcv");

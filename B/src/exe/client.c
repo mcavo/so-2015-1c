@@ -6,6 +6,8 @@ static void showCinemaTitle();
 static int showMenu();
 
 
+
+
 int main(int argc, char** argv) {
 	int action;
 	int server_pid = get_server_pid();
@@ -80,7 +82,5 @@ static int showMenu(){
 
   return choice;
 }
-
-
 
 
