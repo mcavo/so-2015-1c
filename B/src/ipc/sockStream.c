@@ -43,9 +43,8 @@ ipc_t *ipc_connect(int pid){
 
 	sock->server_id=pid;
 	sock->id=getpid();
-
-        sock->sock = s;	
-	
+	sock->sock = s;	
+	printf("sock number connect:%d\n", s);
 	return sock;	
 }
 
@@ -70,6 +69,7 @@ ipc_t* ipc_open(int pid){
 	len = strlen(local.sun_path) + sizeof(local.sun_family);
 
 	if (bind(s, (struct sockaddr *)&local, len) == -1) {
+		printf("error en el bind\n");
 		perror("bind");
 		fprintf(stderr, "Ocurrio el error %s en ipc_open\n",strerror(errno));		
 		exit(1);
@@ -77,8 +77,8 @@ ipc_t* ipc_open(int pid){
 
 	sock->server_id=pid;
 	sock->id=getpid();
-
-        sock->sock = s;
+	sock->sock = s;
+	printf("sock number open:%d\n", s);
 	return sock;
 }
 
@@ -90,7 +90,6 @@ void ipc_close(ipc_t *ipc){
 
 void ipc_send(ipc_t *ipc, uint16_t recipient, void *message, uint16_t len){
 	printf("send\n");
-	//message_t* msg = malloc(sizeof(message_t)+len);
 	message_t *msg = calloc(MESSAGE_SIZE, sizeof(char));
 	msg->sender = ipc->id;
 	msg->content_len = len;
@@ -99,17 +98,17 @@ void ipc_send(ipc_t *ipc, uint16_t recipient, void *message, uint16_t len){
 	printf("len: %d\n", msg->content_len);
 	printf("message size %d\n", sizeof(message));
 	printf("proces id: %d, to: %d\n", msg->sender, ipc->server_id);
-	printf("msg size: %d\n", sizeof(msg));
-	printf("content: %s\n", msg->content);
-	//printf("message en ipc_send: %d\n", *((uint8_t*)message));
-	//printf("msg.content en ipc_send: %d\n", (uint8_t)(msg->content));
+	//printf("msg size: %d\n", sizeof(msg));
+	//printf("content: %s\n", msg->content);
+
 	printf("voy a enviar\n"); 
+	printf("sock: %d\n", ipc->sock);
 	int i = send(ipc->sock, msg, MESSAGE_SIZE, 0);
-	printf("%d\n", i);
+	printf("send answer: %d\n", i);
 	if ( i <= 0){
 		printf("Ocurrio el error %s en ipc_send\n",strerror(errno));
 		perror("send");
-		//fprintf(stderr, "Ocurrio el error %s en ipc_send\n",strerror(errno));
+		fprintf(stderr, "Ocurrio el error %s en ipc_send\n",strerror(errno));
 		exit(1);
 	}
 	printf("estoy terminando el send\n");
@@ -125,7 +124,7 @@ message_t* ipc_receive(ipc_t *ipc){
 	char *buf = calloc(MESSAGE_SIZE, sizeof(char));	
 	t = sizeof(remote);
 	printf("t en ipc_receive: %d\n",t);
-	while ((s2 = accept(ipc->sock, (struct sockaddr *)(&remote), &t)) == -1) {
+	if ((s2 = accept(ipc->sock, (struct sockaddr *)(&remote), &t)) == -1) {
 		perror("accept");
 		fprintf(stderr, "Ocurrio el error %s en ipc_receive\n",strerror(errno));				
 		//exit(1);

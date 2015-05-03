@@ -16,31 +16,12 @@ static void save_server_pid(int server_pid);
 database_t *db;
 static pid_t server_pid;
 
-<<<<<<< HEAD
 int main(void) {
 	db = db_open("db");
 	pid_t pid;
 	message_t* cmd;
 	server_pid = getpid();
 	ipc_t *ipc;
-=======
-int main(void)
-{
-    db = db_open("db");
-    pid_t pid;
-    message_t* cmd;
-    server_pid = getpid();   
-	ipc_t *ipc;   
-
-    //Dejamos en un archivo el pid del servidor para que los clientes lo tomen y se comuniquen. 
-    save_server_pid(server_pid);
-
-    //Creamos el ipc unico, cuyo id es el pid del servidor.
-    ipc = ipc_listen(server_pid); 	
-	
-	printf("server_pid: %d ipc_id: %d\n", server_pid,ipc->id); 
->>>>>>> mqueues integrado pero tira stack smashing en server cuando elegis op 3
-
 	//Dejamos en un archivo el pid del servidor para que los clientes lo tomen y se comuniquen.
 	save_server_pid(server_pid);
 
