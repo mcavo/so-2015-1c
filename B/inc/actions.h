@@ -12,7 +12,7 @@
 #define ACTION_ERROR 59
 
 #define ANSI_C_ERROR_COLOR "\e[1;31m" //RED
-#define ANSI_C_OK_COLOR "\e[1;32m" //GREEN
+#define ANSI_C_OK_COLOR "\e[1;34m" //BLUE
 #define ANSI_C_RESET_COLOR "\e[1;0m"
 
 #define TICKET_AVAILABLE "\e[1;32m" //GREEN

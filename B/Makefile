@@ -21,7 +21,7 @@ obj/%.o: src/%.c inc/%.h
 	gcc  -c $< -o $@ $(C_FLAGS)
 
 clean:
-	rm -rf obj tmp test
+	rm -rf obj
 
 
 .PHONY: build clean

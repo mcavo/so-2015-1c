@@ -5,7 +5,7 @@ static void reverse(char s[], int size);
 char *get_fname(pid_t ipc_pid) {
 	char *pid = malloc(sizeof(char*)*10);
     char * path;
-    char * p = "";
+    char * p = "/tmp/";
     itoa(ipc_pid, pid);
 
     path = (char*)malloc((strlen(pid) + 1 + strlen(p))*sizeof(char));

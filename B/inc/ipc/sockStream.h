@@ -9,17 +9,13 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include "../ipc.h"
+#include "../ipcParser.h"
 
 #define SOCK_PATH "mysocket"
 #define MSG_SIZE 1024*10
 #define MESSAGE_SIZE 500
 
 
-typedef struct {
-	uint16_t sender;
-	uint16_t content_len;
-	char content[];
-} message_t;
 
 typedef struct {
 	int id;

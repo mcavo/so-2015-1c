@@ -178,7 +178,6 @@ static int askConfirmation(sala_t * sala, booking_t * b) {
     		return DONT_CONFIRM;
         default:
             return QUIT;
-    }; //hay que ver si esto está realmente bien. Si ingresa otra cosa
 }
 
 booking_t * getBooking(char* movie_name, int * code) {
@@ -221,8 +220,8 @@ booking_t * getBooking(char* movie_name, int * code) {
 static void printMovieList(fixture_t * fix) {
     if(fix!=NULL) {
         int i = 0;
-        printf("\n  MOVIES LIST \n");
-        printf("  -----------\n");
+        printf("\n  Fixture \n");
+        printf("  --------\n");
     
         for ( ; i < fix->count; i++) {
             printf("  %i.%s\n", i + 1, fix->titles[i]);

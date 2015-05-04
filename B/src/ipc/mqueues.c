@@ -15,8 +15,8 @@ ipc_t *ipc_connect(int pid){
 		perror("msgget");
 		fprintf(stderr, "Ocurrio el error %s en ipc_open\n",strerror(errno));		
 		return NULL;
-  }
-  msq->queue = msqid;
+  	}
+  	msq->queue = msqid;
 	msq->server_id=get_server_pid();
 	msq->id=getpid();
 	return msq;

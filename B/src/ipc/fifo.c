@@ -10,8 +10,8 @@ ipc_t *ipc_create(pid_t to) {
 	ipc -> server_id = to;
 	ipc -> id = getpid();
 	ipc -> fifopath = get_fname(ipc->server_id);
-	
-	if (mknod(ipc -> fifopath, S_IFIFO | 0666, 0) == -1) {
+	printf("%s\n",ipc->fifopath);
+	if (mkfifo(ipc -> fifopath, 0777) == -1) {
 		if(errno != EEXIST) {
 			perror("create");
 			fprintf(stderr, "Ocurrio el error %s en ipc_create\n",strerror(errno));		

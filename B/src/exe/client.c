@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
 			case ACTION_BUY_TICKETS:
 				actionBuyTickets(ipc);
 				break;
-				case ACTION_PRINT_CINEMA:
+			case ACTION_PRINT_CINEMA:
 				actionPrintCinema(ipc);
 				break;
 			default:
@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
 }
 
 static void showCinemaTitle () {
-    printf("\n\
+    printf("\n\e[1;36m\
                 ****  ***********     ********\n\
                 ****  ************   **********\n\
                 ****  ****    ****   ****   ***\n\
@@ -58,7 +58,7 @@ static void showCinemaTitle () {
  ****           ****  **** *******   *******      ****  *  ****   ****    ****\n\
  ****    ****   ****  ****  ******   ****         ****     ****   ************\n\
  ************   ****  ****   *****   **********   ****     ****   ************\n\
-  **********    ****  ****    ****   **********   ****     ****   ****    ****\n\n\n\
+  **********    ****  ****    ****   **********   ****     ****   ****    ****\e[0m\n\n\n\
     ");
 
 

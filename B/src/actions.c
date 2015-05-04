@@ -32,9 +32,11 @@ void hand_error(res_error_t *err) {
 }
 
 void req_fixture(ipc_t *ipc) {
+	printf("%s\n","req_fix");
 	req_fixture_t req = {
 		.type = ACTION_SHOW_FIXTURE
-	};ipc_send(ipc, ipc->server_id, &req, sizeof(req));
+	};
+	ipc_send(ipc, ipc->server_id, &req, sizeof(req));
 }
 
 void res_fixture(ipc_t *ipc, database_t *db,uint16_t sender){
@@ -49,6 +51,7 @@ void res_fixture(ipc_t *ipc, database_t *db,uint16_t sender){
 }
 
 void hand_fixture(res_fixture_t *res) {
+	printf("%s\n","hand_fix");
 	int i;
 	printf("\n\n  Fixture\n --------\n");
 	for (i = 0; i < res->count; i++) {
@@ -84,11 +87,13 @@ void hand_buy_tickets(res_buy_tickets_t *res) {
 }
 
 void req_print_cinema(ipc_t *ipc, uint16_t movie_id) {
+	printf("%s\n","req_print");
 	req_print_cinema_t req = {
 		.type = ACTION_PRINT_CINEMA,
 		.movie_id = movie_id
 	};
 	ipc_send(ipc, ipc->server_id, &req, sizeof(req));
+	printf("%s\n","req_print2");
 }
 
 void res_print_cinema(ipc_t *ipc, database_t *db, uint16_t sender, req_print_cinema_t *req) {
@@ -107,9 +112,18 @@ void res_print_cinema(ipc_t *ipc, database_t *db, uint16_t sender, req_print_cin
 }
 
 void hand_print_cinema(res_print_cinema_t *res) {
+	printf("%s\n","hand_print");
 	int i;
 	char row = 'A';
 	char * color;
+	printf("\n\t");
+    	for(i=0;i< (2*MOVIE_MAX_COL-7)/2 ; i++) {
+    	    printf("%c",' ');
+    	}
+    	printf("%s\n\t","screen");
+    	for(i=0;i<(2*MOVIE_MAX_COL-1);i++){
+        	printf("%c",'-');
+    	}
 	for (i=0 ; i < MOVIE_MAX_PLACES ; i++) {
 		if(i%MOVIE_MAX_COL==0)
 			printf("\n  %c\t",row++);
@@ -118,9 +132,10 @@ void hand_print_cinema(res_print_cinema_t *res) {
 			color = TICKET_BOUGHT;
 		printf("%sO%s ",color,ANSI_C_RESET_COLOR);
 	}
-	printf("\n\t");
-	for (i=0 ; i < MOVIE_MAX_COL ; i++) {
-		printf("%d ",i+1);
-	}
+	printf("\n\n\t");
+    	for(i=0;i<MOVIE_MAX_COL;i++) {
+        	printf("%d ",i+1);
+    	}
+    	printf("\n");
 	printf("\n\n");
 }

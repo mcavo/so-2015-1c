@@ -23,9 +23,9 @@ ipc_t* ipc_open(int pid){
 	int s, len;
 	struct sockaddr_un local;
 	ipc_t* sock = malloc(sizeof(ipc_t));  	
-	char path[5]; 
+	char * path = get_fname(pid); 
 
-	sprintf(path, "%d", pid);
+	//sprintf(path, "%d", pid);
 
 	if ((s = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
 		perror("socket");
@@ -47,6 +47,7 @@ ipc_t* ipc_open(int pid){
 	sock->server_id=pid;
 	sock->id=getpid();
 	sock->sock = s;
+	free(path);
 	return sock;
 }
 
@@ -58,9 +59,9 @@ void ipc_close(ipc_t *ipc){
 void ipc_send(ipc_t *ipc, uint16_t recipient, void *message, uint16_t len){
 	int s, length;
 	struct sockaddr_un remote;
-	char path[5]; 
+	char * path = get_fname(ipc->server_id); 
 
-	sprintf(path, "%d", ipc->server_id);
+	//sprintf(path, "%d", ipc->server_id);
 	if ((s = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
 		perror("socket");
 		fprintf(stderr, "Ocurrio el error %s en ipc_connect\n",strerror(errno));
@@ -88,6 +89,7 @@ void ipc_send(ipc_t *ipc, uint16_t recipient, void *message, uint16_t len){
 		fprintf(stderr, "Ocurrio el error %s en ipc_send\n",strerror(errno));
 		exit(1);
 	}
+	free(path);
 	close(s);
 }
 
