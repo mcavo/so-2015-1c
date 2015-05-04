@@ -54,6 +54,21 @@ void actionBuyTickets() {
     return;
 }
 
+void actionPrintCinema () {
+	int code;
+	char* title = getMovieTitle(&code);
+    	if (title == NULL) {
+        	printMsg(code);
+        	return;
+    	}
+	sala_t* sala = get_sala (title);
+	if (sala==NULL) {
+		printMsg(DATABASE_ERROR);
+        	return;
+    	}
+	printSala(*sala);
+}
+
 void printMsg ( int code ) {
     char * ERROR_ANSI_COLOR = "\e[1;31m";
     char * SUCCESFULL_ANSI_COLOR = "\e[1;34m";
@@ -178,6 +193,7 @@ static int askConfirmation(sala_t * sala, booking_t * b) {
     		return DONT_CONFIRM;
         default:
             return QUIT;
+	};
 }
 
 booking_t * getBooking(char* movie_name, int * code) {

@@ -32,7 +32,6 @@ void hand_error(res_error_t *err) {
 }
 
 void req_fixture(ipc_t *ipc) {
-	printf("%s\n","req_fix");
 	req_fixture_t req = {
 		.type = ACTION_SHOW_FIXTURE
 	};
@@ -51,7 +50,6 @@ void res_fixture(ipc_t *ipc, database_t *db,uint16_t sender){
 }
 
 void hand_fixture(res_fixture_t *res) {
-	printf("%s\n","hand_fix");
 	int i;
 	printf("\n\n  Fixture\n --------\n");
 	for (i = 0; i < res->count; i++) {
@@ -87,7 +85,6 @@ void hand_buy_tickets(res_buy_tickets_t *res) {
 }
 
 void req_print_cinema(ipc_t *ipc, uint16_t movie_id) {
-	printf("%s\n","req_print");
 	req_print_cinema_t req = {
 		.type = ACTION_PRINT_CINEMA,
 		.movie_id = movie_id
@@ -112,7 +109,6 @@ void res_print_cinema(ipc_t *ipc, database_t *db, uint16_t sender, req_print_cin
 }
 
 void hand_print_cinema(res_print_cinema_t *res) {
-	printf("%s\n","hand_print");
 	int i;
 	char row = 'A';
 	char * color;

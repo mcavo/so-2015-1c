@@ -1,3 +1,2 @@
 ./bin/reset db fixture.txt
-mkdir -m 777 tmp
 ./bin/server

@@ -12,5 +12,6 @@
 
 void actionShowMovies();
 void actionBuyTickets();
+void actionPrintCinema();
 
 void printMsg (int code);

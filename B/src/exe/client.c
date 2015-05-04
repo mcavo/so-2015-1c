@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
 				break;
 		}
 	}
-	printf("\n\n  Goodbye!\n\n");
+	printf("\n\n  Come back soon!\n\n");
 	return 0;
 }
 

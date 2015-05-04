@@ -4,8 +4,9 @@
 
 #define ACTION_SHOW_FIXTURE 1
 #define ACTION_BUY_TICKETS  2
-#define ACTION_EXIT         3
-#define ACTION_INVALID      4
+#define ACTION_PRINT_CINEMA 3
+#define ACTION_EXIT         4
+#define ACTION_INVALID      5
 
 
 
@@ -13,7 +14,7 @@
 
 
 void showCinemaTitle () {
-    printf("\n\
+    printf("\n\e[1;36m\
                 ****  ***********     ********\n\
                 ****  ************   **********\n\
                 ****  ****    ****   ****   ***\n\
@@ -32,7 +33,7 @@ void showCinemaTitle () {
  ****           ****  **** *******   *******      ****  *  ****   ****    ****\n\
  ****    ****   ****  ****  ******   ****         ****     ****   ************\n\
  ************   ****  ****   *****   **********   ****     ****   ************\n\
-  **********    ****  ****    ****   **********   ****     ****   ****    ****\n\n\n\
+  **********    ****  ****    ****   **********   ****     ****   ****    ****\e[0m\n\n\n\
     ");
 
 
@@ -45,7 +46,8 @@ int showMenu(){
   **********\n\n\
   1.Show movies\n\
   2.Buy tickets\n\
-  3.Exit\n\n\
+  3.Print cinema\n\
+  4.Exit\n\n\
   Please, select your choice:\n\
     ");
   scanf("%d", &choice);
@@ -61,10 +63,12 @@ int execRequest(/*ipc_t* ipc*/){
         switch(choice) {
             case ACTION_BUY_TICKETS: actionBuyTickets() ; break;
             case ACTION_SHOW_FIXTURE: actionShowMovies() ; break;
-            case ACTION_EXIT: printf(" Come back soon!\n"); break;
+	    case ACTION_PRINT_CINEMA: actionPrintCinema() ; break;
+            case ACTION_EXIT: break;
             default: printf("Invalid argument:\n %d is not a valid choice.\n\n",choice); break;
         }
     }
+    printf("\n\n  Come back soon!\n\n");
     return 0;
 }
 
